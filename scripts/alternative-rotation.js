@@ -175,9 +175,9 @@ function _handleDragCancel_Override (_handleDragCancel, event) {
     return _handleDragCancel.bind(this)(event)
   }
   isNowRotating = false
+  const object = this.object
   if (this.state === this.states.DRAG) {
     // Cancel drag rotation
-    const object = this.object
     // reset rotation to match data
     if (object instanceof Token)
       object.icon.rotation = object.data.rotation
