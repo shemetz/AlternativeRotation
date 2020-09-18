@@ -94,7 +94,7 @@ function _handleMouseOut_Override (_handleMouseOut, event) {
   if (
     mim && isDoingDrag(mim) && !isNowRotating
     && isDragButtonHeld() && event.data.originalEvent.buttons === 1
-    && game.activeTool === 'select'
+    && game.activeTool === 'select' && this.state === this.states.CLICKED
     && (game.user.isGM || (!game.paused && (obj.actor && obj.actor.hasPerm(game.user, 'OWNER'))))
   ) {
     // Start drag rotation
