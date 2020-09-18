@@ -16,7 +16,7 @@ function isDragButtonHeld () {
 }
 
 function isDragSnapButtonHeld () {
-  return game.keyboard._downKeys.has('Control')
+  return game.keyboard._downKeys.has('Control') || game.keyboard._downKeys.has('Control')
 }
 
 function isDoingDrag (mouseInteractionManager) {
@@ -111,7 +111,7 @@ function _handleMouseOut_Override (_handleMouseOut, event) {
 function _onDragLeftStart_Override (_onDragLeftStart, event) {
   const oe = event.data.originalEvent
   if (
-    oe.ctrlKey && oe.shiftKey && this.activeLayer.name === 'TokenLayer'
+    (oe.ctrlKey || oe.metaKey) && oe.shiftKey && this.activeLayer.name === 'TokenLayer'
   ) {
     // do nothing; preventing the ctrl+drag ruler shortcut
     return
