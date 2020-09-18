@@ -224,7 +224,7 @@ Hooks.once('setup', function () {
   libWrapper.register(MODULE_ID, 'MouseInteractionManager.prototype._handleDragCancel', _handleDragCancel_Override, 'MIXED')
   libWrapper.register(MODULE_ID, 'MouseInteractionManager.prototype._handleMouseOut', _handleMouseOut_Override, 'MIXED')
   libWrapper.register(MODULE_ID, 'MouseInteractionManager.prototype._handleMouseUp', _handleMouseUp_Override, 'MIXED')
-  libWrapper.register(MODULE_ID, 'MouseInteractionManager.prototype._onControl', _onControl_Override, 'MIXED')
+  libWrapper.register(MODULE_ID, 'Token.prototype._onControl', _onControl_Override, 'MIXED')
   libWrapper.register(MODULE_ID, 'Canvas.prototype._onDragLeftStart', _onDragLeftStart_Override, 'MIXED')
   console.log(`Alternative Rotation | initialized`)
 })
