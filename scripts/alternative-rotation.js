@@ -145,6 +145,8 @@ function _handleDragMove_Override (_handleDragMove, event) {
 function completeDragRotation (mim, event) {
   const object = mim.object
   const targetRotation = rotationTowardsCursor(object, event.data.destination)
+  // sets local data rotation to be like the image's rotation. this prevents the upcoming refresh from flipping it back
+  object.data.rotation = object.icon.rotation
   object.rotate(targetRotation)
   mim.state = mim.states.DROP
 }
@@ -181,13 +183,16 @@ function _handleDragCancel_Override (_handleDragCancel, event) {
       object.icon.rotation = object.data.rotation
     else
       object.tile.img.rotation = object.data.rotation
+  } else {
+    // sets local data rotation to be like the image's rotation. this prevents the upcoming refresh from flipping it back
+    object.data.rotation = object.icon.rotation
   }
   if (drawnArrow) {
     drawnArrow.clear()
     drawnArrow = null
   }
+  this.object.control()
   this.state = this.states.NONE
-  this.object.control() // maintain selection
   currentMim = null
 }
 
