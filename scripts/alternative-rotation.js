@@ -33,8 +33,8 @@ function drawDirectionalArrow (from, to) {
   const arrowCornerAngle = 150 * degToRad
   const angle = Math.atan2(to.y - from.y, to.x - from.x)
   const arrowStart = {
-    x: from.x + Math.cos(angle) * circleRadius,
-    y: from.y + Math.sin(angle) * circleRadius,
+    x: from.x + Math.cos(angle) * (circleRadius - width / 2 - 2),
+    y: from.y + Math.sin(angle) * (circleRadius - width / 2 - 2),
   }
   const arrowCorner1 = {
     x: to.x + Math.cos(angle + arrowCornerAngle) * arrowCornerLength,
@@ -142,7 +142,7 @@ function _handleDragMove_Override (_handleDragMove, event) {
   drawDirectionalArrow(start, cursor)
 }
 
-function completeDragRotation(mim, event) {
+function completeDragRotation (mim, event) {
   const object = mim.object
   const targetRotation = rotationTowardsCursor(object, event.data.destination)
   object.rotate(targetRotation)
@@ -158,7 +158,7 @@ function _handleDragDrop_Override (_handleDragDrop, event) {
   completeDragRotation(this, event)
 }
 
-function _handleMouseUp_Override(_handleMouseUp, event) {
+function _handleMouseUp_Override (_handleMouseUp, event) {
   // workaround to solve an edge case bug that should drop the drag when mouse is let go:
   // when letting go of the mouse while hovering over a second token with
   if (isNowRotating && this.state === this.states.HOVER) {
