@@ -49,15 +49,20 @@ function drawDirectionalArrow (from, to) {
     .drawPolygon(to.x, to.y, arrowCorner1.x, arrowCorner1.y, to.x, to.y, arrowCorner2.x, arrowCorner2.y)
 }
 
+function getCenter (object) {
+  if (object instanceof Token) return object.center
+  if (object instanceof Tile) return {
+    x: object.data.x + object.tile.img.width / 2,
+    y: object.data.y + object.tile.img.height / 2
+  }
+  throw Error('shouldn\'t call getCenter() on other stuff')
+}
+
 /**
  * Returns result in degrees
  */
 function rotationTowardsCursor (object, cursor) {
-  const obj = object instanceof Token ? object.center : {
-    // Tile doesn't have a center() field :(
-    x: object.data.x + object.tile.img.width / 2,
-    y: object.data.y + object.tile.img.height / 2
-  }
+  const obj = getCenter(object)
   const target = Math.atan2(cursor.y - obj.y, cursor.x - obj.x) + Math.PI * 3 / 2 // down = 0
   const degrees = target * radToDeg
   const dBig = canvas.grid.type > CONST.GRID_TYPES.SQUARE ? 60 : 45
@@ -123,15 +128,16 @@ function _handleDragMove_Override (_handleDragMove, event) {
   if (!isDragButtonHeld()) {
     console.log('user let go of shift; ignoring it for now')
   }
-  // Continue drag rotation, showing preview
+  // Continue drag rotation, showing "preview"
   const object = this.object
   const cursor = event.data.destination
   const targetRotation = rotationTowardsCursor(object, cursor)
-  const img = this.object instanceof Token ? object.icon : object.img  // TODO tile for sure
-  // TODO animation
-  img.rotation = targetRotation * degToRad
+  if (object instanceof Token)
+    object.icon.rotation = targetRotation * degToRad
+  else
+    object.tile.img.rotation = targetRotation * degToRad
   // draw arrow
-  const start = object.center
+  const start = getCenter(object)
   drawDirectionalArrow(start, cursor)
 }
 
@@ -143,7 +149,6 @@ function _handleDragDrop_Override (_handleDragDrop, event) {
   // Complete drag rotation
   const object = this.object
   const targetRotation = rotationTowardsCursor(object, event.data.destination)
-  // TODO animation handling
   object.rotate(targetRotation)
   this.state = this.states.DROP
 }
@@ -158,11 +163,10 @@ function _handleDragCancel_Override (_handleDragCancel, event) {
     // Cancel drag rotation
     const object = this.object
     // reset rotation to match data
-    // TODO animation
     if (object instanceof Token)
       object.icon.rotation = object.data.rotation
     else
-      object.img.rotation = object.data.rotation // TODO tile
+      object.tile.img.rotation = object.data.rotation
   }
   if (drawnArrow) {
     drawnArrow.clear()
