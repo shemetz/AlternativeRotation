@@ -145,8 +145,6 @@ function _handleDragMove_Override (_handleDragMove, event) {
 function completeDragRotation (mim, event) {
   const object = mim.object
   const targetRotation = rotationTowardsCursor(object, event.data.destination)
-  // sets local data rotation to be like the image's rotation. this prevents the upcoming refresh from flipping it back
-  object.data.rotation = object.icon.rotation
   object.rotate(targetRotation)
   mim.state = mim.states.DROP
 }
@@ -169,31 +167,43 @@ function _handleMouseUp_Override (_handleMouseUp, event) {
   return _handleMouseUp.bind(this)(event)
 }
 
+let isAvoidingRefresh = true
+
 function _handleDragCancel_Override (_handleDragCancel, event) {
   if (!isDoingDrag(this) || !isNowRotating) {
     // Call wrapped function
     return _handleDragCancel.bind(this)(event)
   }
   isNowRotating = false
-  const object = this.object
   if (this.state === this.states.DRAG) {
+    const object = this.object
     // Cancel drag rotation
     // reset rotation to match data
     if (object instanceof Token)
       object.icon.rotation = object.data.rotation
     else
       object.tile.img.rotation = object.data.rotation
-  } else {
-    // sets local data rotation to be like the image's rotation. this prevents the upcoming refresh from flipping it back
-    object.data.rotation = object.icon.rotation
   }
   if (drawnArrow) {
     drawnArrow.clear()
     drawnArrow = null
   }
+  isAvoidingRefresh = true
   this.object.control()
+  isAvoidingRefresh = false
   this.state = this.states.NONE
   currentMim = null
+}
+
+function _onControl_Override(_onControl, {releaseOthers=true, updateSight=true, pan=false} = {}) {
+  if (!isAvoidingRefresh)
+    return _onControl.bind(this)({releaseOthers, updateSight, pan})
+  this.zIndex = 1;
+  //NOTABLY ABSENT:
+  // this.refresh();
+  if ( updateSight ) canvas.sight.initializeTokens();
+  if ( pan ) canvas.animatePan({x: this.x, y: this.y});
+  canvas.sounds.update();
 }
 
 Hooks.once('init', function () {
@@ -214,6 +224,7 @@ Hooks.once('setup', function () {
   libWrapper.register(MODULE_ID, 'MouseInteractionManager.prototype._handleDragCancel', _handleDragCancel_Override, 'MIXED')
   libWrapper.register(MODULE_ID, 'MouseInteractionManager.prototype._handleMouseOut', _handleMouseOut_Override, 'MIXED')
   libWrapper.register(MODULE_ID, 'MouseInteractionManager.prototype._handleMouseUp', _handleMouseUp_Override, 'MIXED')
+  libWrapper.register(MODULE_ID, 'MouseInteractionManager.prototype._onControl', _onControl_Override, 'MIXED')
   libWrapper.register(MODULE_ID, 'Canvas.prototype._onDragLeftStart', _onDragLeftStart_Override, 'MIXED')
   console.log(`Alternative Rotation | initialized`)
 })
