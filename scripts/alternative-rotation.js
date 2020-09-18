@@ -1,6 +1,11 @@
 import { libWrapper } from './libwrapper-shim.js'
 
 const MODULE_ID = 'alternative-rotation'
+const radToDeg = 180 / Math.PI
+const degToRad = Math.PI / 180
+let drawnArrow = null
+let currentMim = null
+let isNowRotating = false
 
 function getSetting (settingName) {
   return game.settings.get(MODULE_ID, settingName)
@@ -18,8 +23,6 @@ function isDoingDrag (mouseInteractionManager) {
   const obj = mouseInteractionManager.object
   return !mouseInteractionManager._dragRight && (obj instanceof Token || obj instanceof Tile)
 }
-
-let drawnArrow = null
 
 function drawDirectionalArrow (from, to) {
   const width = isDragSnapButtonHeld() ? 8 : 5
@@ -71,11 +74,6 @@ function rotationTowardsCursor (object, cursor) {
   return Math.round(degrees / snap) * snap
 }
 
-const radToDeg = 180 / Math.PI
-const degToRad = Math.PI / 180
-
-let isNowRotating = false
-
 function _handleDragStart_Override (_handleDragStart, event) {
   // Wrap unless shift+leftpress on a tile or token
   if (!isDoingDrag(this) || !isDragButtonHeld()) {
@@ -84,6 +82,7 @@ function _handleDragStart_Override (_handleDragStart, event) {
   }
   // Start drag rotation
   isNowRotating = true
+  currentMim = this
 }
 
 function _handleMouseOut_Override (_handleMouseOut, event) {
@@ -103,6 +102,7 @@ function _handleMouseOut_Override (_handleMouseOut, event) {
     mim.state = this.states.DRAG
     // activating drag events so that _handleDragMove_Override will be called from now on
     mim._activateDragEvents()
+    currentMim = mim
   }
   // calling wrapper function either way
   return _handleMouseOut.bind(this)(event)
@@ -124,10 +124,11 @@ function _handleDragMove_Override (_handleDragMove, event) {
     // Call wrapped function
     return _handleDragMove.bind(this)(event)
   }
-  // If user let go of shift while rotating
-  if (!isDragButtonHeld()) {
-    console.log('user let go of shift; ignoring it for now')
-  }
+  // If user let go of shift while rotating, we don't care
+  // if (!isDragButtonHeld()) {
+  //   console.log('user let go of shift; ignoring it for now')
+  // }
+
   // Continue drag rotation, showing "preview"
   const object = this.object
   const cursor = event.data.destination
@@ -141,16 +142,29 @@ function _handleDragMove_Override (_handleDragMove, event) {
   drawDirectionalArrow(start, cursor)
 }
 
+function completeDragRotation(mim, event) {
+  const object = mim.object
+  const targetRotation = rotationTowardsCursor(object, event.data.destination)
+  object.rotate(targetRotation)
+  mim.state = mim.states.DROP
+}
+
 function _handleDragDrop_Override (_handleDragDrop, event) {
   if (!isDoingDrag(this) || !isNowRotating) {
     // Call wrapped function
     return _handleDragDrop.bind(this)(event)
   }
   // Complete drag rotation
-  const object = this.object
-  const targetRotation = rotationTowardsCursor(object, event.data.destination)
-  object.rotate(targetRotation)
-  this.state = this.states.DROP
+  completeDragRotation(this, event)
+}
+
+function _handleMouseUp_Override(_handleMouseUp, event) {
+  // workaround to solve an edge case bug that should drop the drag when mouse is let go:
+  // when letting go of the mouse while hovering over a second token with
+  if (isNowRotating && this.state === this.states.HOVER) {
+    return completeDragRotation(currentMim, event)
+  }
+  return _handleMouseUp.bind(this)(event)
 }
 
 function _handleDragCancel_Override (_handleDragCancel, event) {
@@ -172,7 +186,9 @@ function _handleDragCancel_Override (_handleDragCancel, event) {
     drawnArrow.clear()
     drawnArrow = null
   }
-  this.state = this.states.HOVER
+  this.state = this.states.NONE
+  this.object.control() // maintain selection
+  currentMim = null
 }
 
 Hooks.once('init', function () {
@@ -192,6 +208,7 @@ Hooks.once('setup', function () {
   libWrapper.register(MODULE_ID, 'MouseInteractionManager.prototype._handleDragDrop', _handleDragDrop_Override, 'MIXED')
   libWrapper.register(MODULE_ID, 'MouseInteractionManager.prototype._handleDragCancel', _handleDragCancel_Override, 'MIXED')
   libWrapper.register(MODULE_ID, 'MouseInteractionManager.prototype._handleMouseOut', _handleMouseOut_Override, 'MIXED')
+  libWrapper.register(MODULE_ID, 'MouseInteractionManager.prototype._handleMouseUp', _handleMouseUp_Override, 'MIXED')
   libWrapper.register(MODULE_ID, 'Canvas.prototype._onDragLeftStart', _onDragLeftStart_Override, 'MIXED')
   console.log(`Alternative Rotation | initialized`)
 })
