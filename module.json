@@ -3,7 +3,7 @@
   "title": "Alternative Rotation",
   "description": "Rotate tokens by dragging in a direction",
   "author": "shem",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "minimumCoreVersion": "0.6.0",
   "compatibleCoreVersion": "0.6.6",
   "esmodules": [
