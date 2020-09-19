@@ -195,15 +195,15 @@ function _handleDragCancel_Override (_handleDragCancel, event) {
   currentMim = null
 }
 
-function _onControl_Override(_onControl, {releaseOthers=true, updateSight=true, pan=false} = {}) {
+function _onControl_Override (_onControl, { releaseOthers = true, updateSight = true, pan = false } = {}) {
   if (!isAvoidingRefresh)
-    return _onControl.bind(this)({releaseOthers, updateSight, pan})
-  this.zIndex = 1;
+    return _onControl.bind(this)({ releaseOthers, updateSight, pan })
+  this.zIndex = 1
   //NOTABLY ABSENT:
   // this.refresh();
-  if ( updateSight ) canvas.sight.initializeTokens();
-  if ( pan ) canvas.animatePan({x: this.x, y: this.y});
-  canvas.sounds.update();
+  if (updateSight) canvas.sight.initializeTokens()
+  if (pan) canvas.animatePan({ x: this.x, y: this.y })
+  canvas.sounds.update()
 }
 
 Hooks.once('init', function () {
