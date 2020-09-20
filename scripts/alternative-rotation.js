@@ -6,6 +6,7 @@ const degToRad = Math.PI / 180
 let drawnArrow = null
 let currentMim = null
 let isNowRotating = false
+let isAvoidingRefresh = false
 
 function getSetting (settingName) {
   return game.settings.get(MODULE_ID, settingName)
@@ -166,8 +167,6 @@ function _handleMouseUp_Override (_handleMouseUp, event) {
   }
   return _handleMouseUp.bind(this)(event)
 }
-
-let isAvoidingRefresh = true
 
 function _handleDragCancel_Override (_handleDragCancel, event) {
   if (!isDoingDrag(this) || !isNowRotating) {
