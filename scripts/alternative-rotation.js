@@ -200,9 +200,9 @@ function _onControl_Override (_onControl, { releaseOthers = true, updateSight = 
   this.zIndex = 1
   //NOTABLY ABSENT:
   // this.refresh();
-  if (updateSight) canvas.sight.initializeTokens()
-  if (pan) canvas.animatePan({ x: this.x, y: this.y })
-  canvas.sounds.update()
+  if (updateSight) canvas.addPendingOperation(`Canvas.initializeSources`, canvas.initializeSources, canvas)
+  if (pan) canvas.addPendingOperation("Canvas.animatePan", canvas.animatePan, canvas, [{x: this.x, y: this.y}])
+  canvas.sounds.refresh()
 }
 
 Hooks.once('init', function () {
