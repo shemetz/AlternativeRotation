@@ -7,6 +7,7 @@ let drawnArrow = null
 let currentMim = null
 let isNowRotating = false
 let isAvoidingRefresh = false
+let isRotatingMultipleTokens = false
 
 function getSetting (settingName) {
   return game.settings.get(MODULE_ID, settingName)
@@ -23,6 +24,19 @@ function isDragSnapButtonHeld () {
 function isDoingDrag (mouseInteractionManager) {
   const obj = mouseInteractionManager.object
   return !mouseInteractionManager._dragRight && (obj instanceof Token || obj instanceof Tile)
+}
+
+/**
+ * Can only multi-rotate tokens and tiles (could add others in the future if needed)
+ */
+function controlledObjectsOnCurrentLayer () {
+  if (canvas.activeLayer instanceof TilesLayer) {
+    return canvas.tiles.controlled
+  }
+  if (canvas.activeLayer instanceof TokenLayer) {
+    return canvas.tokens.controlled
+  }
+  return []
 }
 
 function drawDirectionalArrow (from, to) {
@@ -57,7 +71,7 @@ function getCenter (object) {
   if (object instanceof Token) return object.center
   if (object instanceof Tile) return {
     x: object.data.x + object.tile.img.width / 2,
-    y: object.data.y + object.tile.img.height / 2
+    y: object.data.y + object.tile.img.height / 2,
   }
   throw Error('shouldn\'t call getCenter() on other stuff')
 }
@@ -78,6 +92,11 @@ function rotationTowardsCursor (object, cursor) {
 function _handleDragStart_Override (_handleDragStart, event) {
   // Wrap unless shift+leftpress on a tile or token
   if (!isDoingDrag(this) || !isDragButtonHeld()) {
+    if (isDragButtonHeld() && controlledObjectsOnCurrentLayer().length >= 2) {
+      isRotatingMultipleTokens = true
+      // todo visual effect?
+      return
+    }
     // Call wrapped function
     return _handleDragStart.bind(this)(event)
   }
@@ -121,14 +140,23 @@ function _onDragLeftStart_Override (_onDragLeftStart, event) {
 }
 
 function _handleDragMove_Override (_handleDragMove, event) {
+  if (isRotatingMultipleTokens) {
+    const updates = controlledObjectsOnCurrentLayer().map(object => {
+      let update = { _id: object.id }
+      const angle = rotationTowardsCursor(object, event.data.destination)
+      const rotation = object._updateRotation({ angle })
+      mergeObject(update, { rotation })
+      return update
+    })
+    if (updates.length > 0) {
+      canvas.activeLayer.updateMany(updates)
+      return
+    }
+  }
   if (!isDoingDrag(this) || !isNowRotating) {
     // Call wrapped function
     return _handleDragMove.bind(this)(event)
   }
-  // If user let go of shift while rotating, we don't care
-  // if (!isDragButtonHeld()) {
-  //   console.log('user let go of shift; ignoring it for now')
-  // }
 
   // Continue drag rotation, showing "preview"
   const object = this.object
@@ -141,6 +169,7 @@ function _handleDragMove_Override (_handleDragMove, event) {
   // draw arrow
   const start = getCenter(object)
   drawDirectionalArrow(start, cursor)
+  object.update({ rotation: targetRotation })
 }
 
 function completeDragRotation (mim, event) {
@@ -152,6 +181,10 @@ function completeDragRotation (mim, event) {
 
 function _handleDragDrop_Override (_handleDragDrop, event) {
   if (!isDoingDrag(this) || !isNowRotating) {
+    if (isRotatingMultipleTokens) {
+      completeMultiRotation(this, event)
+      return
+    }
     // Call wrapped function
     return _handleDragDrop.bind(this)(event)
   }
@@ -201,8 +234,20 @@ function _onControl_Override (_onControl, { releaseOthers = true, updateSight = 
   //NOTABLY ABSENT:
   // this.refresh();
   if (updateSight) canvas.addPendingOperation(`Canvas.initializeSources`, canvas.initializeSources, canvas)
-  if (pan) canvas.addPendingOperation("Canvas.animatePan", canvas.animatePan, canvas, [{x: this.x, y: this.y}])
+  if (pan) canvas.addPendingOperation('Canvas.animatePan', canvas.animatePan, canvas, [{ x: this.x, y: this.y }])
   canvas.sounds.refresh()
+}
+
+function _onClickStart_Override (_onClickStart, event) {
+  if (isDragButtonHeld() && controlledObjectsOnCurrentLayer().length >= 2) {
+    // do nothing; preventing the release of all controlled tokens
+    return
+  }
+  return _onClickStart.bind(this)(event)
+}
+
+function completeMultiRotation (mim, event) {
+  isRotatingMultipleTokens = false
 }
 
 Hooks.once('init', function () {
@@ -217,13 +262,23 @@ Hooks.once('init', function () {
 })
 
 Hooks.once('setup', function () {
-  libWrapper.register(MODULE_ID, 'MouseInteractionManager.prototype._handleDragStart', _handleDragStart_Override, 'MIXED')
-  libWrapper.register(MODULE_ID, 'MouseInteractionManager.prototype._handleDragMove', _handleDragMove_Override, 'MIXED')
-  libWrapper.register(MODULE_ID, 'MouseInteractionManager.prototype._handleDragDrop', _handleDragDrop_Override, 'MIXED')
-  libWrapper.register(MODULE_ID, 'MouseInteractionManager.prototype._handleDragCancel', _handleDragCancel_Override, 'MIXED')
-  libWrapper.register(MODULE_ID, 'MouseInteractionManager.prototype._handleMouseOut', _handleMouseOut_Override, 'MIXED')
-  libWrapper.register(MODULE_ID, 'MouseInteractionManager.prototype._handleMouseUp', _handleMouseUp_Override, 'MIXED')
-  libWrapper.register(MODULE_ID, 'Token.prototype._onControl', _onControl_Override, 'MIXED')
-  libWrapper.register(MODULE_ID, 'Canvas.prototype._onDragLeftStart', _onDragLeftStart_Override, 'MIXED')
+  libWrapper.register(MODULE_ID,
+    'MouseInteractionManager.prototype._handleDragStart', _handleDragStart_Override, 'MIXED')
+  libWrapper.register(MODULE_ID,
+    'MouseInteractionManager.prototype._handleDragMove', _handleDragMove_Override, 'MIXED')
+  libWrapper.register(MODULE_ID,
+    'MouseInteractionManager.prototype._handleDragDrop', _handleDragDrop_Override, 'MIXED')
+  libWrapper.register(MODULE_ID,
+    'MouseInteractionManager.prototype._handleDragCancel', _handleDragCancel_Override, 'MIXED')
+  libWrapper.register(MODULE_ID,
+    'MouseInteractionManager.prototype._handleMouseOut', _handleMouseOut_Override, 'MIXED')
+  libWrapper.register(MODULE_ID,
+    'MouseInteractionManager.prototype._handleMouseUp', _handleMouseUp_Override, 'MIXED')
+  libWrapper.register(MODULE_ID,
+    'Token.prototype._onControl', _onControl_Override, 'MIXED')
+  libWrapper.register(MODULE_ID,
+    'Canvas.prototype._onDragLeftStart', _onDragLeftStart_Override, 'MIXED')
+  libWrapper.register(MODULE_ID,
+    'PlaceablesLayer.prototype._onClickLeft', _onClickStart_Override, 'MIXED')
   console.log(`Alternative Rotation | initialized`)
 })
