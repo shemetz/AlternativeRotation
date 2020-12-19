@@ -142,16 +142,24 @@ function _onDragLeftStart_Override (_onDragLeftStart, event) {
 function _handleDragMove_Override (_handleDragMove, event) {
   if (isRotatingMultipleTokens) {
     const updates = controlledObjectsOnCurrentLayer().map(object => {
-      let update = { _id: object.id }
       const angle = rotationTowardsCursor(object, event.data.destination)
+      if (getSetting('fast-preview')) {
+        // fast preview:  rotate image of token/tile in client, which feels very fast
+        if (object instanceof Token)
+          object.icon.rotation = angle * degToRad
+        else
+          object.tile.img.rotation = angle * degToRad
+        return null
+      }
+      let update = { _id: object.id }
       const rotation = object._updateRotation({ angle })
       mergeObject(update, { rotation })
       return update
     })
-    if (updates.length > 0) {
+    if (updates.length > 0 && !getSetting('fast-preview')) {
       canvas.activeLayer.updateMany(updates)
-      return
     }
+    return
   }
   if (!isDoingDrag(this) || !isNowRotating) {
     // Call wrapped function
@@ -162,14 +170,19 @@ function _handleDragMove_Override (_handleDragMove, event) {
   const object = this.object
   const cursor = event.data.destination
   const targetRotation = rotationTowardsCursor(object, cursor)
-  if (object instanceof Token)
-    object.icon.rotation = targetRotation * degToRad
-  else
-    object.tile.img.rotation = targetRotation * degToRad
   // draw arrow
   const start = getCenter(object)
   drawDirectionalArrow(start, cursor)
-  object.update({ rotation: targetRotation })
+  if (getSetting('fast-preview')) {
+    // fast preview:  rotate image of token/tile in client, which feels very fast
+    if (object instanceof Token)
+      object.icon.rotation = targetRotation * degToRad
+    else
+      object.tile.img.rotation = targetRotation * degToRad
+  } else {
+    // not fast preview:  rotate data of token/tile.  will be sent to remote server (and other players), but lag
+    object.update({ rotation: targetRotation })
+  }
 }
 
 function completeDragRotation (mim, event) {
@@ -248,6 +261,16 @@ function _onClickStart_Override (_onClickStart, event) {
 
 function completeMultiRotation (mim, event) {
   isRotatingMultipleTokens = false
+  const updates = controlledObjectsOnCurrentLayer().map(object => {
+    let update = { _id: object.id }
+    const angle = rotationTowardsCursor(object, event.data.destination)
+    const rotation = object._updateRotation({ angle })
+    mergeObject(update, { rotation })
+    return update
+  })
+  if (updates.length > 0) {
+    canvas.activeLayer.updateMany(updates)
+  }
 }
 
 Hooks.once('init', function () {
@@ -257,6 +280,14 @@ Hooks.once('init', function () {
     scope: 'client',
     config: true,
     default: false,
+    type: Boolean,
+  })
+  game.settings.register(MODULE_ID, 'fast-preview', {
+    name: 'Fast Preview',
+    hint: 'If true, there will be no lag when rotating, but other players won\'t see the change until you let go.',
+    scope: 'client',
+    config: true,
+    default: true,
     type: Boolean,
   })
 })
