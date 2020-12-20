@@ -8,15 +8,15 @@ Allows rotating tokens and tiles by dragging in a direction and releasing.
 
 To install, browse for it in the module browser, or [directly copy the manifest link for the latest release](https://github.com/itamarcu/AlternativeRotation/releases/latest/download/module.json).
 
-![thumbnail](github_media/thumbnail.png)
+![thumbnail](metadata/thumbnail.png)
 
 # Gifs
 
-![simple_rotation_demo](github_media/simple_rotation_demo.gif)
+![simple_rotation_demo](metadata/simple_rotation_demo.gif)
 
-![multiple_rotation_demo](github_media/multiple_rotation_demo.gif)
+![multiple_rotation_demo](metadata/multiple_rotation_demo.gif)
 
-![full_rotation_demo](github_media/full_rotation_demo.gif)
+![full_rotation_demo](metadata/full_rotation_demo.gif)
 
 # Features
 
@@ -45,8 +45,8 @@ setting.
 Here's an example of how "Fast Preview" looks like when disabled. The right screen is what you see, and the left screen
 is what other players will see.
 
-![fast_preview_disabled](github_media/fast_preview_disabled.gif)
+![fast_preview_disabled](metadata/fast_preview_disabled.gif)
 
 And when enabled:
 
-![fast_preview_enabled](github_media/fast_preview_enabled.gif)
+![fast_preview_enabled](metadata/fast_preview_enabled.gif)
