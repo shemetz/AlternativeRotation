@@ -156,7 +156,7 @@ function _handleDragMove_Override (_handleDragMove, event) {
 
   // If not enough time has passed since the last rotation update, skip this update.
   const now = Date.now()
-  const skipRotation = (now - lastRotated) < getSetting('rotation-frequency')
+  const skipRotation = (now - lastRotated) < (1000 / getSetting('rotation-frequency'))
   if (skipRotation && !getSetting('fast-preview')) {
     return
   }
@@ -303,11 +303,11 @@ Hooks.once('init', function () {
     type: Boolean,
   })
   game.settings.register(MODULE_ID, 'rotation-frequency', {
-    name: 'Rotation frequency (milliseconds)',
-    hint: 'The frequency with which objects will rotate in milliseconds. Lower values offer smoother rotation, but may introduce undesirable lag. If rotated objects seem to lag, try setting this to a higher value. This setting is ignored if Fast Preview is turned on.',
+    name: 'Rotation update frequency',
+    hint: 'The frequency with which rotating objects will be updated, measured in updates per second. A higher frequency offers smoother rotation, but may introduce undesirable lag. If rotated objects seem to lag, try a lower frequency. This setting is ignored if Fast Preview is turned on.',
     scope: 'world',
     config: true,
-    default: 150,
+    default: 8,
     type: Number,
   })
 })
