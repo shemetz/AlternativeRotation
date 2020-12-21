@@ -146,33 +146,52 @@ function _handleDragMove_Override (_handleDragMove, event) {
     return _handleDragMove.bind(this)(event)
   }
 
-  const now = Date.now()
-  const skipRotation = (now - lastRotated) < getSetting('rotation-frequency')
-
   const cursor = event.data.destination
   const object = this.object
-  if (isNowRotating && !isRotatingMultipleTokens ) {
+  if (isNowRotating && !isRotatingMultipleTokens) {
     // Draw arrow only if a single object is being rotated.
     const start = getCenter(object)
     drawDirectionalArrow(start, cursor)
   }
-  if (skipRotation) {
+
+  // If not enough time has passed since the last rotation update, skip this update.
+  const now = Date.now()
+  const skipRotation = (now - lastRotated) < getSetting('rotation-frequency')
+  if (skipRotation && !getSetting('fast-preview')) {
     return
   }
+
   if (isRotatingMultipleTokens) {
     const updates = controlledObjectsOnCurrentLayer().map(object => {
       const angle = rotationTowardsCursor(object, cursor)
+      if (getSetting('fast-preview')) {
+        // fast preview:  rotate image of token/tile in client, which feels very fast
+        if (object instanceof Token)
+          object.icon.rotation = angle * degToRad
+        else
+          object.tile.img.rotation = angle * degToRad
+        return null
+      }
       let update = { _id: object.id }
       const rotation = object._updateRotation({ angle })
       mergeObject(update, { rotation })
       return update
     })
-    if (updates.length > 0) {
+    if (updates.length > 0 && !getSetting('fast-preview')) {
       canvas.activeLayer.updateMany(updates)
     }
   } else {
     const targetRotation = rotationTowardsCursor(object, cursor)
-    object.update({ rotation: targetRotation })
+    if (getSetting('fast-preview')) {
+      // fast preview:  rotate image of token/tile in client, which feels very fast
+      if (object instanceof Token)
+        object.icon.rotation = targetRotation * degToRad
+      else
+        object.tile.img.rotation = targetRotation * degToRad
+    } else {
+      // not fast preview:  rotate data of token/tile.  will be sent to remote server (and other players), but lag
+      object.update({ rotation: targetRotation })
+    }
   }
   // Prepare for next rotation
   lastRotated = now
@@ -275,9 +294,17 @@ Hooks.once('init', function () {
     default: false,
     type: Boolean,
   })
+  game.settings.register(MODULE_ID, 'fast-preview', {
+    name: 'Fast Preview',
+    hint: 'If true, there will be no lag when rotating, but other players won\'t see the change until you let go.',
+    scope: 'world',
+    config: true,
+    default: true,
+    type: Boolean,
+  })
   game.settings.register(MODULE_ID, 'rotation-frequency', {
     name: 'Rotation frequency (milliseconds)',
-    hint: 'The frequency with which objects will rotate in milliseconds. Lower values offer smoother rotation, but may introduce undesirable lag. If rotated objects seem to lag, try setting this to a higher value.',
+    hint: 'The frequency with which objects will rotate in milliseconds. Lower values offer smoother rotation, but may introduce undesirable lag. If rotated objects seem to lag, try setting this to a higher value. This setting is ignored if Fast Preview is turned on.',
     scope: 'world',
     config: true,
     default: 150,
