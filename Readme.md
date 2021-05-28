@@ -14,7 +14,7 @@ To install, browse for it in the module browser, or [directly copy the manifest 
 
 ![simple_rotation_demo](metadata/simple_rotation_demo.gif)
 
-![multiple_rotation_demo](metadata/multiple_rotation_demo.gif)
+![multiple_rotation_demo_2](metadata/multiple_rotation_demo_2.gif)
 
 ![full_rotation_demo](metadata/full_rotation_demo.gif)
 

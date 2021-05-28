@@ -3,7 +3,7 @@ import { libWrapper } from './libwrapper-shim.js'
 const MODULE_ID = 'alternative-rotation'
 const radToDeg = 180 / Math.PI
 const degToRad = Math.PI / 180
-let drawnArrow = null
+let visualEffectsGraphics = null
 let currentMim = null
 let isNowRotating = false
 let isAvoidingRefresh = false
@@ -61,12 +61,54 @@ function drawDirectionalArrow (from, to) {
     x: to.x + Math.cos(angle - arrowCornerAngle) * arrowCornerLength,
     y: to.y + Math.sin(angle - arrowCornerAngle) * arrowCornerLength,
   }
-  // drawing using the canvas selection rectangle, yes, it's a hack
-  drawnArrow = canvas.controls.select.clear()
+  visualEffectsGraphics.clear()
     .lineStyle(width, color, alpha) // width, color, alpha
     .drawCircle(from.x, from.y, circleRadius)
     .drawPolygon(arrowStart.x, arrowStart.y, to.x, to.y)
     .drawPolygon(to.x, to.y, arrowCorner1.x, arrowCorner1.y, to.x, to.y, arrowCorner2.x, arrowCorner2.y)
+}
+
+function drawMultiRotationVFX (focusPoint) {
+  const width = isDragSnapButtonHeld() ? 6 : 4
+  const color = 0xFF9829
+  const circleAlpha = 0.5
+  const circleRadius = 14
+  // draw circle
+  visualEffectsGraphics.clear()
+    .lineStyle(width, color, circleAlpha) // width, color, alpha
+    .drawCircle(focusPoint.x, focusPoint.y, circleRadius)
+  const arrowLength = 18
+  const arrowCornerLength = 12
+  const arrowCornerAngle = 30 * degToRad
+  // draw arrows entering circle:
+  //   ↓
+  // ->o<-
+  //   ↑
+  controlledObjectsOnCurrentLayer().forEach(object => {
+    const objCenter = getCenter(object)
+    const angle = Math.atan2(objCenter.y - focusPoint.y, objCenter.x - focusPoint.x)
+    const arrowStart = {
+      x: focusPoint.x + Math.cos(angle) * (circleRadius + arrowLength),
+      y: focusPoint.y + Math.sin(angle) * (circleRadius + arrowLength),
+    }
+    const to = {
+      x: focusPoint.x + Math.cos(angle) * (circleRadius - width / 2 - 2),
+      y: focusPoint.y + Math.sin(angle) * (circleRadius - width / 2 - 2),
+    }
+    const arrowCorner1 = {
+      x: to.x + Math.cos(angle + arrowCornerAngle) * arrowCornerLength,
+      y: to.y + Math.sin(angle + arrowCornerAngle) * arrowCornerLength,
+    }
+    const arrowCorner2 = {
+      x: to.x + Math.cos(angle - arrowCornerAngle) * arrowCornerLength,
+      y: to.y + Math.sin(angle - arrowCornerAngle) * arrowCornerLength,
+    }
+    const alpha = 0.8
+    visualEffectsGraphics
+      .lineStyle(width, color, alpha) // width, color, alpha
+      .drawPolygon(arrowStart.x, arrowStart.y, to.x, to.y)
+      .drawPolygon(to.x, to.y, arrowCorner1.x, arrowCorner1.y, to.x, to.y, arrowCorner2.x, arrowCorner2.y)
+  })
 }
 
 function getCenter (object) {
@@ -96,7 +138,7 @@ function _handleDragStart_Override (_handleDragStart, event) {
   if (!isDoingDrag(this) || !isDragButtonHeld()) {
     if (isDragButtonHeld() && controlledObjectsOnCurrentLayer().length >= 2) {
       isRotatingMultipleTokens = true
-      // todo visual effect?
+      drawMultiRotationVFX(event.data.destination)
       return
     }
     // Call wrapped function
@@ -143,6 +185,7 @@ function _onDragLeftStart_Override (_onDragLeftStart, event) {
 
 function _handleDragMove_Override (_handleDragMove, event) {
   if (isRotatingMultipleTokens) {
+    drawMultiRotationVFX(event.data.destination)
     const updates = controlledObjectsOnCurrentLayer().map(object => {
       const angle = rotationTowardsCursor(object, event.data.destination)
       if (getSetting('fast-preview')) {
@@ -232,10 +275,7 @@ function _handleDragCancel_Override (_handleDragCancel, event) {
     else
       object.tile.img.rotation = object.data.rotation
   }
-  if (drawnArrow) {
-    drawnArrow.clear()
-    drawnArrow = null
-  }
+  visualEffectsGraphics.clear()
   isAvoidingRefresh = true
   this.object.control()
   isAvoidingRefresh = false
@@ -268,6 +308,7 @@ function _onClickStart_Override (_onClickStart, event) {
 
 function completeMultiRotation (mim, event) {
   isRotatingMultipleTokens = false
+  visualEffectsGraphics.clear()
   const updates = controlledObjectsOnCurrentLayer().map(object => {
     let update = { _id: object.id }
     const angle = rotationTowardsCursor(object, event.data.destination)
@@ -320,4 +361,12 @@ Hooks.once('setup', function () {
   libWrapper.register(MODULE_ID,
     'PlaceablesLayer.prototype._onClickLeft', _onClickStart_Override, 'MIXED')
   console.log(`Alternative Rotation | initialized`)
+})
+
+Hooks.once('canvasInit', function () {
+  if (visualEffectsGraphics === null) {
+    // should only happen once;  but just in case...
+    visualEffectsGraphics = canvas.controls.addChild(new PIXI.Graphics())
+  }
+  console.log(`Alternative Rotation | added PIXI graphics to canvas controls`)
 })
