@@ -30,11 +30,13 @@ function isDoingDrag (mouseInteractionManager) {
  * Can only multi-rotate tokens and tiles (could add others in the future if needed)
  */
 function controlledObjectsOnCurrentLayer () {
-  if (canvas.activeLayer instanceof TilesLayer) {
-    return canvas.tiles.controlled
-  }
-  if (canvas.activeLayer instanceof TokenLayer) {
-    return canvas.tokens.controlled
+  switch (true) {
+    case canvas.activeLayer instanceof BackgroundLayer:
+      return canvas.background.controlled
+    case canvas.activeLayer instanceof ForegroundLayer:
+      return canvas.foreground.controlled
+    case canvas.activeLayer instanceof TokenLayer:
+      return canvas.tokens.controlled
   }
   return []
 }
@@ -70,8 +72,8 @@ function drawDirectionalArrow (from, to) {
 function getCenter (object) {
   if (object instanceof Token) return object.center
   if (object instanceof Tile) return {
-    x: object.data.x + object.tile.img.width / 2,
-    y: object.data.y + object.tile.img.height / 2,
+    x: object.data.x + object.tile.width / 2,
+    y: object.data.y + object.tile.height / 2,
   }
   throw Error('shouldn\'t call getCenter() on other stuff')
 }
@@ -157,7 +159,8 @@ function _handleDragMove_Override (_handleDragMove, event) {
       return update
     })
     if (updates.length > 0 && !getSetting('fast-preview')) {
-      canvas.activeLayer.updateMany(updates)
+      const documentName = controlledObjectsOnCurrentLayer()[0].document.documentName
+      canvas.scene.updateEmbeddedDocuments(documentName, updates)
     }
     return
   }
@@ -181,7 +184,7 @@ function _handleDragMove_Override (_handleDragMove, event) {
       object.tile.img.rotation = targetRotation * degToRad
   } else {
     // not fast preview:  rotate data of token/tile.  will be sent to remote server (and other players), but lag
-    object.update({ rotation: targetRotation })
+    object.document.update({ rotation: targetRotation })
   }
 }
 
@@ -246,9 +249,13 @@ function _onControl_Override (_onControl, { releaseOthers = true, updateSight = 
   this.zIndex = 1
   //NOTABLY ABSENT:
   // this.refresh();
-  if (updateSight) canvas.addPendingOperation(`Canvas.initializeSources`, canvas.initializeSources, canvas)
   if (pan) canvas.addPendingOperation('Canvas.animatePan', canvas.animatePan, canvas, [{ x: this.x, y: this.y }])
-  canvas.sounds.refresh()
+  canvas.perception.schedule({
+    sight: { initialize: true, refresh: true },
+    lighting: { refresh: true },
+    sounds: { refresh: true },
+    foreground: { refresh: true },
+  })
 }
 
 function _onClickStart_Override (_onClickStart, event) {
@@ -269,7 +276,8 @@ function completeMultiRotation (mim, event) {
     return update
   })
   if (updates.length > 0) {
-    canvas.activeLayer.updateMany(updates)
+    const documentName = controlledObjectsOnCurrentLayer()[0].document.documentName
+    canvas.scene.updateEmbeddedDocuments(documentName, updates)
   }
 }
 
