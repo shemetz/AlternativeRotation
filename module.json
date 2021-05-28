@@ -22,19 +22,22 @@
       "reddit": "u/Shemetz"
     }
   ],
-  "manifestPlusVersion": "1.0.0",
+  "manifestPlusVersion": "1.2.0",
   "media": [
     {
       "type": "screenshot",
-      "url": "https://raw.githubusercontent.com/itamarcu/alternative-rotation/master/metadata/simple_rotation_demo.gif"
+      "url": "https://raw.githubusercontent.com/itamarcu/AlternativeRotation/master/metadata/simple_rotation_demo.gif",
+      "caption": "Demo gif of Alternative Rotation"
     },
     {
       "type": "icon",
-      "url": "https://raw.githubusercontent.com/itamarcu/alternative-rotation/master/metadata/icon.png"
+      "url": "https://raw.githubusercontent.com/itamarcu/AlternativeRotation/master/metadata/icon.png",
+      "caption": "Alternative Rotation"
     },
     {
       "type": "cover",
-      "url": "https://raw.githubusercontent.com/itamarcu/alternative-rotation/master/metadata/thumbnail.png"
+      "url": "https://raw.githubusercontent.com/itamarcu/AlternativeRotation/master/metadata/thumbnail.png",
+      "caption": "Alternative Rotation"
     }
   ]
 }
