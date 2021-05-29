@@ -12,10 +12,10 @@
   "url": "https://github.com/itamarcu/AlternativeRotation",
   "manifest": "https://github.com/itamarcu/AlternativeRotation/raw/master/module.json",
   "download": "https://github.com/itamarcu/AlternativeRotation/archive/master.zip",
-  "readme": "https://raw.githubusercontent.com/itamarcu/AlternativeRotation/master/Readme.md",
+  "readme": "https://github.com/itamarcu/AlternativeRotation/blob/master/Readme.md",
   "bugs": "https://github.com/itamarcu/AlternativeRotation/issues",
-  "license": "https://raw.githubusercontent.com/itamarcu/AlternativeRotation/master/License.txt",
-  "changelog": "https://raw.githubusercontent.com/itamarcu/AlternativeRotation/master/Changelog.md",
+  "license": "https://github.com/itamarcu/AlternativeRotation/blob/master/License.txt",
+  "changelog": "https://github.com/itamarcu/AlternativeRotation/blob/master/Changelog.md",
   "authors": [
     {
       "name": "shem",
