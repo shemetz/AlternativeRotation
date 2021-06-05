@@ -26,6 +26,15 @@ function isDoingDrag (mouseInteractionManager) {
   return !mouseInteractionManager._dragRight && (obj instanceof Token || obj instanceof Tile)
 }
 
+function getVisualEffectsGraphics () {
+  if (visualEffectsGraphics === null) {
+    // should only happen once;  but just in case...
+    visualEffectsGraphics = canvas.controls.addChild(new PIXI.Graphics())
+    console.log(`Alternative Rotation | added PIXI graphics to canvas controls`)
+  }
+  return visualEffectsGraphics
+}
+
 /**
  * Can only multi-rotate tokens and tiles (could add others in the future if needed)
  */
@@ -61,7 +70,7 @@ function drawDirectionalArrow (from, to) {
     x: to.x + Math.cos(angle - arrowCornerAngle) * arrowCornerLength,
     y: to.y + Math.sin(angle - arrowCornerAngle) * arrowCornerLength,
   }
-  visualEffectsGraphics.clear()
+  getVisualEffectsGraphics().clear()
     .lineStyle(width, color, alpha) // width, color, alpha
     .drawCircle(from.x, from.y, circleRadius)
     .drawPolygon(arrowStart.x, arrowStart.y, to.x, to.y)
@@ -74,7 +83,7 @@ function drawMultiRotationVFX (focusPoint) {
   const circleAlpha = 0.5
   const circleRadius = 14
   // draw circle
-  visualEffectsGraphics.clear()
+  getVisualEffectsGraphics().clear()
     .lineStyle(width, color, circleAlpha) // width, color, alpha
     .drawCircle(focusPoint.x, focusPoint.y, circleRadius)
   const arrowLength = 18
@@ -104,7 +113,7 @@ function drawMultiRotationVFX (focusPoint) {
       y: to.y + Math.sin(angle - arrowCornerAngle) * arrowCornerLength,
     }
     const alpha = 0.8
-    visualEffectsGraphics
+    getVisualEffectsGraphics()
       .lineStyle(width, color, alpha) // width, color, alpha
       .drawPolygon(arrowStart.x, arrowStart.y, to.x, to.y)
       .drawPolygon(to.x, to.y, arrowCorner1.x, arrowCorner1.y, to.x, to.y, arrowCorner2.x, arrowCorner2.y)
@@ -275,7 +284,7 @@ function _handleDragCancel_Override (_handleDragCancel, event) {
     else
       object.tile.img.rotation = object.data.rotation
   }
-  visualEffectsGraphics.clear()
+  getVisualEffectsGraphics().clear()
   isAvoidingRefresh = true
   this.object.control()
   isAvoidingRefresh = false
@@ -308,7 +317,7 @@ function _onClickStart_Override (_onClickStart, event) {
 
 function completeMultiRotation (mim, event) {
   isRotatingMultipleTokens = false
-  visualEffectsGraphics.clear()
+  getVisualEffectsGraphics().clear()
   const updates = controlledObjectsOnCurrentLayer().map(object => {
     let update = { _id: object.id }
     const angle = rotationTowardsCursor(object, event.data.destination)
@@ -364,9 +373,5 @@ Hooks.once('setup', function () {
 })
 
 Hooks.once('canvasInit', function () {
-  if (visualEffectsGraphics === null) {
-    // should only happen once;  but just in case...
-    visualEffectsGraphics = canvas.controls.addChild(new PIXI.Graphics())
-  }
-  console.log(`Alternative Rotation | added PIXI graphics to canvas controls`)
+  getVisualEffectsGraphics()
 })
