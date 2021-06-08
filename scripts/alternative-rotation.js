@@ -27,8 +27,8 @@ function isDoingDrag (mouseInteractionManager) {
 }
 
 function getVisualEffectsGraphics () {
-  if (visualEffectsGraphics === null) {
-    // should only happen once;  but just in case...
+  if (visualEffectsGraphics === null || visualEffectsGraphics._geometry === null) {
+    // visualEffectsGraphics._geometry will become null if the canvas changes, e.g. when moving to new scene
     visualEffectsGraphics = canvas.controls.addChild(new PIXI.Graphics())
     console.log(`Alternative Rotation | added PIXI graphics to canvas controls`)
   }
