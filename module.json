@@ -16,6 +16,11 @@
   "bugs": "https://github.com/itamarcu/AlternativeRotation/issues",
   "license": "https://github.com/itamarcu/AlternativeRotation/blob/master/License.txt",
   "changelog": "https://github.com/itamarcu/AlternativeRotation/blob/master/Changelog.md",
+  "dependencies": [
+    {
+      "name": "lib-wrapper"
+    }
+  ],
   "authors": [
     {
       "name": "shem",

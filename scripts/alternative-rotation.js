@@ -1,5 +1,3 @@
-import { libWrapper } from './libwrapper-shim.js'
-
 const MODULE_ID = 'alternative-rotation'
 const radToDeg = 180 / Math.PI
 const degToRad = Math.PI / 180
@@ -18,7 +16,7 @@ function isDragButtonHeld () {
 }
 
 function isDragSnapButtonHeld () {
-  return game.keyboard._downKeys.has('Control') || game.keyboard._downKeys.has('Control')
+  return game.keyboard._downKeys.has('Control')
 }
 
 function isDoingDrag (mouseInteractionManager) {
@@ -354,6 +352,11 @@ Hooks.once('init', function () {
 })
 
 Hooks.once('setup', function () {
+  if (!game.modules.get('lib-wrapper').active) {
+    ui.notifications.error('Alternative Rotation requires the \'libWrapper\' module. Please install and activate it.')
+    return
+  }
+
   libWrapper.register(MODULE_ID,
     'MouseInteractionManager.prototype._handleDragStart', _handleDragStart_Override, 'MIXED')
   libWrapper.register(MODULE_ID,
