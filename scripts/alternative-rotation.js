@@ -159,6 +159,9 @@ function _handleDragStart_Override (_handleDragStart, event) {
 }
 
 function _handleMouseOut_Override (_handleMouseOut, event) {
+  if (!event.currentTarget) {
+    return _handleMouseOut.bind(this)(event)
+  }
   // special case: when user shift-drags from a deselected token
   // (here `this` is the canvas, so we need to get the token/tile's mouse interaction manager)
   const mim = event.currentTarget.mouseInteractionManager
