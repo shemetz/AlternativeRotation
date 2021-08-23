@@ -188,6 +188,9 @@ function _onDragLeftStart_Override (_onDragLeftStart, event) {
     (oe.ctrlKey || oe.metaKey) && oe.shiftKey && this.activeLayer.name === 'TokenLayer'
   ) {
     // do nothing; preventing the ctrl+drag ruler shortcut
+    // but also, to prevent a weird bug, remove preview:
+    if ( this.preview ) this.preview.removeChildren();
+    event.data.preview = null;
     return
   }
   return _onDragLeftStart.bind(this)(event)

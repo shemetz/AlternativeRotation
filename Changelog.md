@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ##  [1.3.0] - 2021-08-23
 - Changed libWrapper to a real dependency instead of shimming it, because by now Foundry should handle dependencies well
+- Bug fix ([#10](https://github.com/itamarcu/AlternativeRotation/issues/10)) - weird bug happened when deleting measured templates and turning with Ctrl and clicking canvas
 - Bug fix ([#11](https://github.com/itamarcu/AlternativeRotation/issues/11)) - console warnings were shown when running with PF2E system
 
 ## [1.2.3] - 2021-05-29
