@@ -12,11 +12,11 @@ function getSetting (settingName) {
 }
 
 function isDragButtonHeld () {
-  return game.keyboard._downKeys.has('Shift')
+  return isNewerVersion(game.version, '9.231') ? game.keyboard.downKeys.has('SHIFT') : game.keyboard._downKeys.has('Shift')
 }
 
 function isDragSnapButtonHeld () {
-  return game.keyboard._downKeys.has('Control')
+  return isNewerVersion(game.version, '9.231') ? game.keyboard.downKeys.has('CONTROL') : game.keyboard._downKeys.has('Control')
 }
 
 function isDoingDrag (mouseInteractionManager) {
@@ -69,10 +69,10 @@ function drawDirectionalArrow (from, to) {
     y: to.y + Math.sin(angle - arrowCornerAngle) * arrowCornerLength,
   }
   getVisualEffectsGraphics().clear()
-    .lineStyle(width, color, alpha) // width, color, alpha
-    .drawCircle(from.x, from.y, circleRadius)
-    .drawPolygon(arrowStart.x, arrowStart.y, to.x, to.y)
-    .drawPolygon(to.x, to.y, arrowCorner1.x, arrowCorner1.y, to.x, to.y, arrowCorner2.x, arrowCorner2.y)
+      .lineStyle(width, color, alpha) // width, color, alpha
+      .drawCircle(from.x, from.y, circleRadius)
+      .drawPolygon(arrowStart.x, arrowStart.y, to.x, to.y)
+      .drawPolygon(to.x, to.y, arrowCorner1.x, arrowCorner1.y, to.x, to.y, arrowCorner2.x, arrowCorner2.y)
 }
 
 function drawMultiRotationVFX (focusPoint) {
@@ -82,8 +82,8 @@ function drawMultiRotationVFX (focusPoint) {
   const circleRadius = 14
   // draw circle
   getVisualEffectsGraphics().clear()
-    .lineStyle(width, color, circleAlpha) // width, color, alpha
-    .drawCircle(focusPoint.x, focusPoint.y, circleRadius)
+      .lineStyle(width, color, circleAlpha) // width, color, alpha
+      .drawCircle(focusPoint.x, focusPoint.y, circleRadius)
   const arrowLength = 18
   const arrowCornerLength = 12
   const arrowCornerAngle = 30 * degToRad
@@ -112,9 +112,9 @@ function drawMultiRotationVFX (focusPoint) {
     }
     const alpha = 0.8
     getVisualEffectsGraphics()
-      .lineStyle(width, color, alpha) // width, color, alpha
-      .drawPolygon(arrowStart.x, arrowStart.y, to.x, to.y)
-      .drawPolygon(to.x, to.y, arrowCorner1.x, arrowCorner1.y, to.x, to.y, arrowCorner2.x, arrowCorner2.y)
+        .lineStyle(width, color, alpha) // width, color, alpha
+        .drawPolygon(arrowStart.x, arrowStart.y, to.x, to.y)
+        .drawPolygon(to.x, to.y, arrowCorner1.x, arrowCorner1.y, to.x, to.y, arrowCorner2.x, arrowCorner2.y)
   })
 }
 
@@ -142,8 +142,8 @@ function rotationTowardsCursor (object, cursor) {
 
 function _handleDragStart_Override (_handleDragStart, event) {
   // Wrap unless shift+leftpress on a tile or token
-  if (!isDoingDrag(this) || !isDragButtonHeld()) {
-    if (isDragButtonHeld() && controlledObjectsOnCurrentLayer().length >= 2) {
+  if (!isDoingDrag(this) || !isDragButtonHeld(event)) {
+    if (isDragButtonHeld(event) && controlledObjectsOnCurrentLayer().length >= 2) {
       isRotatingMultipleTokens = true
       drawMultiRotationVFX(event.data.destination)
       return
@@ -166,10 +166,10 @@ function _handleMouseOut_Override (_handleMouseOut, event) {
   const obj = mim ? mim.object : null
   // lots of checks because handleMouseOut can be called by anyone at any point
   if (
-    mim && isDoingDrag(mim) && !isNowRotating
-    && isDragButtonHeld() && event.data.originalEvent.buttons === 1
-    && game.activeTool === 'select' && this.state === this.states.CLICKED
-    && (game.user.isGM || (!game.paused && (obj.actor && obj.actor.hasPerm(game.user, 'OWNER'))))
+      mim && isDoingDrag(mim) && !isNowRotating
+      && isDragButtonHeld(event) && event.data.originalEvent.buttons === 1
+      && game.activeTool === 'select' && this.state === this.states.CLICKED
+      && (game.user.isGM || (!game.paused && (obj.actor && obj.actor.hasPerm(game.user, 'OWNER'))))
   ) {
     // Start drag rotation
     isNowRotating = true
@@ -185,7 +185,7 @@ function _handleMouseOut_Override (_handleMouseOut, event) {
 function _onDragLeftStart_Override (_onDragLeftStart, event) {
   const oe = event.data.originalEvent
   if (
-    (oe.ctrlKey || oe.metaKey) && oe.shiftKey && this.activeLayer.name === 'TokenLayer'
+      (oe.ctrlKey || oe.metaKey) && oe.shiftKey && this.activeLayer.name === 'TokenLayer'
   ) {
     // do nothing; preventing the ctrl+drag ruler shortcut
     // but also, to prevent a weird bug, remove preview:
@@ -312,7 +312,7 @@ function _onControl_Override (_onControl, { releaseOthers = true, updateSight = 
 }
 
 function _onClickStart_Override (_onClickStart, event) {
-  if (isDragButtonHeld() && controlledObjectsOnCurrentLayer().length >= 2) {
+  if (isDragButtonHeld(event) && controlledObjectsOnCurrentLayer().length >= 2) {
     // do nothing; preventing the release of all controlled tokens
     return
   }
@@ -361,23 +361,26 @@ Hooks.once('setup', function () {
   }
 
   libWrapper.register(MODULE_ID,
-    'MouseInteractionManager.prototype._handleDragStart', _handleDragStart_Override, 'MIXED')
+      'MouseInteractionManager.prototype._handleDragStart', _handleDragStart_Override, 'MIXED')
   libWrapper.register(MODULE_ID,
-    'MouseInteractionManager.prototype._handleDragMove', _handleDragMove_Override, 'MIXED')
+      'MouseInteractionManager.prototype._handleDragMove', _handleDragMove_Override, 'MIXED')
   libWrapper.register(MODULE_ID,
-    'MouseInteractionManager.prototype._handleDragDrop', _handleDragDrop_Override, 'MIXED')
+      'MouseInteractionManager.prototype._handleDragDrop', _handleDragDrop_Override, 'MIXED')
   libWrapper.register(MODULE_ID,
-    'MouseInteractionManager.prototype._handleDragCancel', _handleDragCancel_Override, 'MIXED')
+      'MouseInteractionManager.prototype._handleDragCancel', _handleDragCancel_Override, 'MIXED')
   libWrapper.register(MODULE_ID,
-    'MouseInteractionManager.prototype._handleMouseOut', _handleMouseOut_Override, 'MIXED')
+      'MouseInteractionManager.prototype._handleMouseOut', _handleMouseOut_Override, 'MIXED')
   libWrapper.register(MODULE_ID,
-    'MouseInteractionManager.prototype._handleMouseUp', _handleMouseUp_Override, 'MIXED')
+      'MouseInteractionManager.prototype._handleMouseUp', _handleMouseUp_Override, 'MIXED')
   libWrapper.register(MODULE_ID,
-    'Token.prototype._onControl', _onControl_Override, 'MIXED')
+      'Token.prototype._onControl', _onControl_Override, 'MIXED')
   libWrapper.register(MODULE_ID,
-    'Canvas.prototype._onDragLeftStart', _onDragLeftStart_Override, 'MIXED')
+      'Canvas.prototype._onDragLeftStart', _onDragLeftStart_Override, 'MIXED')
   libWrapper.register(MODULE_ID,
-    'PlaceablesLayer.prototype._onClickLeft', _onClickStart_Override, 'MIXED')
+      'PlaceablesLayer.prototype._onClickLeft', _onClickStart_Override, 'MIXED')
+
+  // TODO:  update to allow keybindings (e.g. R) instead of always Shift and Ctrl.
+    
   console.log(`Alternative Rotation | initialized`)
 })
 
