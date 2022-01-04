@@ -3,6 +3,7 @@
 ![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/itamarcu/AlternativeRotation?style=for-the-badge) 
 ![GitHub Releases](https://img.shields.io/github/downloads/itamarcu/AlternativeRotation/latest/total?style=for-the-badge) 
 ![GitHub All Releases](https://img.shields.io/github/downloads/itamarcu/AlternativeRotation/total?style=for-the-badge&label=Downloads+total)  
+![Latest Supported Foundry Version](https://img.shields.io/endpoint?url=https://foundryshields.com/version?url=https://github.com/itamarcu/AlternativeRotation/raw/master/module.json)
 
 Allows rotating tokens and tiles by dragging in a direction and releasing.
 
