@@ -263,7 +263,7 @@ function completeRotation () {
 
 const onRotateButtonDown = () => {
   const controlled = controlledObjectsOnCurrentLayer()
-  if (!controlled) {
+  if (controlled.length === 0) {
     return
   }
   currentlyRotatedObjects = controlled
