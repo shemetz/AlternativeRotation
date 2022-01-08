@@ -6,7 +6,6 @@ const degToRad = TAU / 360
 let visualEffectsGraphics = null
 let currentlyRotatedObjects = []
 
-let isRotationButtonHeld = false
 let isSnapButtonHeld = false
 
 function isNowRotating () {
@@ -187,11 +186,7 @@ function rotationTowardsCursor (object, cursor) {
   return Math.round(degrees / snap) * snap
 }
 
-function _onMouseMove_Override (_onMouseMove, event) {
-  if (!isNowRotating()) {
-    // Call wrapped function
-    return _onMouseMove.bind(this)(event)
-  }
+const updateTokenRotations = () => {
   if (isNowRotatingMultiple()) {
     drawMultiRotationVFX(getMousePosition())
     const updates = controlledObjectsOnCurrentLayer().map(object => {
@@ -213,8 +208,6 @@ function _onMouseMove_Override (_onMouseMove, event) {
       const documentName = controlledObjectsOnCurrentLayer()[0].document.documentName
       canvas.scene.updateEmbeddedDocuments(documentName, updates)
     }
-    // Call wrapped function
-    return _onMouseMove.bind(this)(event)
   } else {
     const object = currentlyRotatedObjects[0]
     // draw arrow
@@ -232,9 +225,15 @@ function _onMouseMove_Override (_onMouseMove, event) {
       // not fast preview:  rotate data of token/tile.  will be sent to remote server (and other players), but lag
       object.document.update({ rotation: targetRotation })
     }
-    // Call wrapped function
-    return _onMouseMove.bind(this)(event)
   }
+}
+
+function _onMouseMove_Override (_onMouseMove, event) {
+  if (isNowRotating()) {
+    updateTokenRotations()
+  }
+  // Call wrapped function
+  return _onMouseMove.bind(this)(event)
 }
 
 function completeRotation () {
@@ -254,18 +253,20 @@ function completeRotation () {
 }
 
 const onRotateButtonDown = () => {
-  isRotationButtonHeld = true
   const controlled = controlledObjectsOnCurrentLayer()
+  if (!controlled) {
+    return
+  }
   currentlyRotatedObjects = controlled
   if (controlled.length >= 2) {
     drawMultiRotationVFX(getMousePosition())
   } else if (controlled.length === 1) {
     drawDirectionalArrow()
   }
+  updateTokenRotations()
 }
 
 const onRotateButtonUp = () => {
-  isRotationButtonHeld = false
   if (isNowRotating()) {
     completeRotation()
   }
@@ -335,10 +336,10 @@ Hooks.once('setup', function () {
     hint: 'Hold this modifier key while using Alternative Rotation to snap to grid directions (45°/60°).',
     editable: [
       {
-        key: ['ShiftLeft']
+        key: 'ShiftLeft'
       },
       {
-        key: ['ShiftRight']
+        key: 'ShiftRight'
       },
     ],
     onDown: () => { onSnapButtonDown() },
