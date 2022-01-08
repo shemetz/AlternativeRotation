@@ -2,10 +2,9 @@
   "name": "alternative-rotation",
   "title": "Alternative Rotation",
   "description": "Rotate tokens by dragging in a direction",
-  "author": "shem",
-  "version": "1.3.2",
-  "minimumCoreVersion": "0.8.0",
-  "compatibleCoreVersion": "9.232",
+  "version": "2.0.0",
+  "minimumCoreVersion": "9",
+  "compatibleCoreVersion": "9",
   "esmodules": [
     "scripts/alternative-rotation.js"
   ],
