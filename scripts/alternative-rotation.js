@@ -5,6 +5,7 @@ const degToRad = TAU / 360
 
 let visualEffectsGraphics = null
 let currentlyRotatedObjects = []
+let timeLastRotated = performance.now()
 
 let isSnapButtonHeld = false
 
@@ -187,10 +188,14 @@ function rotationTowardsCursor (object, cursor) {
 }
 
 const updateTokenRotations = () => {
+  const now = performance.now()
+  const shouldSkipRotation = !getSetting('fast-preview') && (now - timeLastRotated) < 1000 / getSetting('rotation-update-frequency')
   if (isNowRotatingMultiple()) {
     drawMultiRotationVFX(getMousePosition())
+    if (shouldSkipRotation) return
     const updates = controlledObjectsOnCurrentLayer().map(object => {
       const angle = rotationTowardsCursor(object, getMousePosition())
+      if (object.document.data.rotation === angle) return null
       if (getSetting('fast-preview')) {
         // fast preview:  rotate image of token/tile in client, which feels very fast
         if (object instanceof Token)
@@ -203,18 +208,21 @@ const updateTokenRotations = () => {
       const rotation = object._updateRotation({ angle })
       mergeObject(update, { rotation })
       return update
-    })
+    }).filter(u => u !== null)
     if (updates.length > 0 && !getSetting('fast-preview')) {
       const documentName = controlledObjectsOnCurrentLayer()[0].document.documentName
+      timeLastRotated = performance.now()
       canvas.scene.updateEmbeddedDocuments(documentName, updates)
     }
   } else {
-    const object = currentlyRotatedObjects[0]
     // draw arrow
     drawDirectionalArrow()
+    if (shouldSkipRotation) return
+    const object = currentlyRotatedObjects[0]
     // Continue rotation
     const cursor = getMousePosition()
     const targetRotation = rotationTowardsCursor(object, cursor)
+    if (object.document.data.rotation === targetRotation) return
     if (getSetting('fast-preview')) {
       // fast preview:  rotate image of token/tile in client, which feels very fast
       if (object instanceof Token)
@@ -223,6 +231,7 @@ const updateTokenRotations = () => {
         object.tile.img.rotation = targetRotation * degToRad
     } else {
       // not fast preview:  rotate data of token/tile.  will be sent to remote server (and other players), but lag
+      timeLastRotated = performance.now()
       object.document.update({ rotation: targetRotation })
     }
   }
@@ -306,6 +315,15 @@ Hooks.once('init', function () {
     config: true,
     default: true,
     type: Boolean,
+  })
+  game.settings.register(MODULE_ID, 'rotation-update-frequency', {
+    name: 'Rotation update frequency',
+    hint: 'Only applies if Fast Preview is disabled.  Default 60 (times per second). Increase this for smoother' +
+      ' yet possibly laggier rotation.',
+    scope: 'client',
+    config: true,
+    default: 60,
+    type: Number,
   })
 })
 
