@@ -4,8 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-##  [2.0.1] - 2022-01-08
+##  [2.0.2] - 2022-01-08
 - Fixed key configuration bug
+- Add setting for specifying rotation frequency ([#4]((https://github.com/itamarcu/AlternativeRotation/pull/4))), thanks @hhu94! 
 
 ##  [2.0.0] - 2022-01-08
 - Refactored - now uses keybindings, default R with Shift modifier to snap
@@ -40,7 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## See also: [Unreleased]
 
-[Unreleased]: https://github.com/itamarcu/AlternativeRotation/compare/2.0.1...HEAD
+[Unreleased]: https://github.com/itamarcu/AlternativeRotation/compare/2.1.0...HEAD
 [1.0.1]: https://github.com/itamarcu/AlternativeRotation/compare/0.3.1...1.0.1
 [1.1.0]: https://github.com/itamarcu/AlternativeRotation/compare/1.0.1...1.1.0
 [1.2.3]: https://github.com/itamarcu/AlternativeRotation/compare/1.1.0...1.2.3
@@ -48,3 +49,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.3.2]: https://github.com/itamarcu/AlternativeRotation/compare/1.3.1...1.3.2
 [2.0.0]: https://github.com/itamarcu/AlternativeRotation/compare/1.3.2...2.0.0
 [2.0.1]: https://github.com/itamarcu/AlternativeRotation/compare/2.0.0...2.0.1
+[2.1.0]: https://github.com/itamarcu/AlternativeRotation/compare/2.0.1...2.1.0

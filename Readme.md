@@ -39,7 +39,7 @@ This is the most common standard for token images.
 By default, *"Fast Preview"* is enabled in the settings. It makes your token rotation feel fast and responsive, but it
 will not update the token until you let go of the mouse; this means the other players will only see the changes when you
 stop rotating the tokens. If you want to show an enemy smoothly rotating to face the players, you should disable this
-setting.
+setting (and tweak the rotation frequency if you find it necessary).
 
 Here's an example of how "Fast Preview" looks like when disabled. The right screen is what you see, and the left screen
 is what other players will see.

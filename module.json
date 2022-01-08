@@ -2,7 +2,7 @@
   "name": "alternative-rotation",
   "title": "Alternative Rotation",
   "description": "Rotate tokens by dragging in a direction",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "minimumCoreVersion": "9",
   "compatibleCoreVersion": "9",
   "esmodules": [
