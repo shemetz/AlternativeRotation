@@ -1,7 +1,7 @@
 {
   "name": "alternative-rotation",
   "title": "Alternative Rotation",
-  "description": "Rotate tokens by dragging in a direction",
+  "description": "Rotate tokens towards your cursor with a hotkey",
   "version": "2.1.1",
   "minimumCoreVersion": "9",
   "compatibleCoreVersion": "9",
