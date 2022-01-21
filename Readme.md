@@ -36,6 +36,9 @@ disable even this snapping in the settings (*"Smooth rotation"*).
 Rotation will assume that the bottom of the token image is its "front"; the token looks down when viewing its image.
 This is the most common standard for token images.
 
+Both of the above hotkeys are **configurable** as normal - i.e. to change them you can open the "Configure Controls"
+settings window, click "Alternative Rotation", and then change the hotkeys.
+
 By default, *"Fast Preview"* is enabled in the settings. It makes your token rotation feel fast and responsive, but it
 will not update the token until you let go of the hotkey; this means the other players will only see the changes when you
 stop rotating the tokens. If you want to show an enemy smoothly rotating to face the players, you should disable this
