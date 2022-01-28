@@ -201,7 +201,7 @@ const updateTokenRotations = () => {
         if (object instanceof Token)
           object.icon.rotation = angle * degToRad
         else
-          object.tile.img.rotation = angle * degToRad
+          object.tile.rotation = angle * degToRad
         return null
       }
       let update = { _id: object.id }
@@ -228,7 +228,7 @@ const updateTokenRotations = () => {
       if (object instanceof Token)
         object.icon.rotation = targetRotation * degToRad
       else
-        object.tile.img.rotation = targetRotation * degToRad
+        object.tile.rotation = targetRotation * degToRad
     } else {
       // not fast preview:  rotate data of token/tile.  will be sent to remote server (and other players), but lag
       timeLastRotated = performance.now()
@@ -347,7 +347,7 @@ Hooks.once('setup', function () {
     ],
     reservedModifiers: [SHIFT, ALT, CONTROL],
     onDown: () => { onRotateButtonDown() },
-    onUp: () => { {onRotateButtonUp()} },
+    onUp: () => { onRotateButtonUp() },
   })
   game.keybindings.register(MODULE_ID, 'alternative-rotation-snap', {
     name: 'Alternative Rotation (snap)',
