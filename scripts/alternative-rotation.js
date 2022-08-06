@@ -43,10 +43,8 @@ function getVisualEffectsGraphics () {
  */
 function controlledObjectsOnCurrentLayer () {
   switch (true) {
-    case canvas.activeLayer instanceof BackgroundLayer:
-      return canvas.background.controlled
-    case canvas.activeLayer instanceof ForegroundLayer:
-      return canvas.foreground.controlled
+    case canvas.activeLayer instanceof TilesLayer:
+      return canvas.tiles.controlled
     case canvas.activeLayer instanceof TokenLayer:
       return canvas.tokens.controlled
   }
@@ -77,7 +75,13 @@ function drawDirectionalArrow () {
     x: to.x + Math.cos(angle - arrowCornerAngle) * arrowCornerLength,
     y: to.y + Math.sin(angle - arrowCornerAngle) * arrowCornerLength,
   }
-  getVisualEffectsGraphics().clear().lineStyle(width, color, alpha).drawCircle(from.x, from.y, circleRadius).lineStyle(width, color, alphaMainArrow).drawPolygon(arrowStart.x, arrowStart.y, to.x, to.y).drawPolygon(to.x, to.y, arrowCorner1.x, arrowCorner1.y, to.x, to.y, arrowCorner2.x, arrowCorner2.y)
+  getVisualEffectsGraphics()
+    .clear()
+    .lineStyle(width, color, alpha)
+    .drawCircle(from.x, from.y, circleRadius)
+    .lineStyle(width, color, alphaMainArrow)
+    .drawPolygon(arrowStart.x, arrowStart.y, to.x, to.y)
+    .drawPolygon(to.x, to.y, arrowCorner1.x, arrowCorner1.y, to.x, to.y, arrowCorner2.x, arrowCorner2.y)
 
   if (isSnapRotationButtonHeld()) {
     const snappedRotation = rotationTowardsCursor(object, to) * degToRad + TAU / 4
@@ -98,7 +102,10 @@ function drawDirectionalArrow () {
       x: to2.x + Math.cos(snappedRotation - arrowCornerAngle) * arrowCornerLength,
       y: to2.y + Math.sin(snappedRotation - arrowCornerAngle) * arrowCornerLength,
     }
-    getVisualEffectsGraphics().lineStyle(5, color, alpha).drawPolygon(secondArrowStart.x, secondArrowStart.y, to2.x, to2.y).drawPolygon(to2.x, to2.y, secondArrowCorner1.x, secondArrowCorner1.y, to2.x, to2.y, secondArrowCorner2.x, secondArrowCorner2.y)
+    getVisualEffectsGraphics()
+      .lineStyle(5, color, alpha)
+      .drawPolygon(secondArrowStart.x, secondArrowStart.y, to2.x, to2.y)
+      .drawPolygon(to2.x, to2.y, secondArrowCorner1.x, secondArrowCorner1.y, to2.x, to2.y, secondArrowCorner2.x, secondArrowCorner2.y)
   }
 }
 
@@ -111,7 +118,9 @@ function drawMultiRotationVFX () {
   const otherArrowsAlpha = 0.8
   const circleRadius = 14
   // draw circle
-  getVisualEffectsGraphics().clear().lineStyle(width, color, circleAlpha)
+  getVisualEffectsGraphics()
+    .clear()
+    .lineStyle(width, color, circleAlpha)
     .drawCircle(focusPoint.x, focusPoint.y, circleRadius)
   const arrowLength = 18
   const arrowCornerLength = 12
@@ -139,8 +148,10 @@ function drawMultiRotationVFX () {
       x: to.x + Math.cos(angle - arrowCornerAngle) * arrowCornerLength,
       y: to.y + Math.sin(angle - arrowCornerAngle) * arrowCornerLength,
     }
-    getVisualEffectsGraphics().lineStyle(width, color, alphaMainArrows)
-      .drawPolygon(arrowStart.x, arrowStart.y, to.x, to.y).drawPolygon(to.x, to.y, arrowCorner1.x, arrowCorner1.y, to.x, to.y, arrowCorner2.x, arrowCorner2.y)
+    getVisualEffectsGraphics()
+      .lineStyle(width, color, alphaMainArrows)
+      .drawPolygon(arrowStart.x, arrowStart.y, to.x, to.y)
+      .drawPolygon(to.x, to.y, arrowCorner1.x, arrowCorner1.y, to.x, to.y, arrowCorner2.x, arrowCorner2.y)
 
     // secondary arrows from each target
     const snappedRotation = rotationTowardsCursor(object, to) * degToRad + TAU / 4
@@ -161,7 +172,10 @@ function drawMultiRotationVFX () {
       x: to2.x + Math.cos(snappedRotation - arrowCornerAngle + TAU / 2) * arrowCornerLength,
       y: to2.y + Math.sin(snappedRotation - arrowCornerAngle + TAU / 2) * arrowCornerLength,
     }
-    getVisualEffectsGraphics().lineStyle(5, color, otherArrowsAlpha).drawPolygon(secondArrowStart.x, secondArrowStart.y, to2.x, to2.y).drawPolygon(to2.x, to2.y, secondArrowCorner1.x, secondArrowCorner1.y, to2.x, to2.y, secondArrowCorner2.x, secondArrowCorner2.y)
+    getVisualEffectsGraphics()
+      .lineStyle(5, color, otherArrowsAlpha)
+      .drawPolygon(secondArrowStart.x, secondArrowStart.y, to2.x, to2.y)
+      .drawPolygon(to2.x, to2.y, secondArrowCorner1.x, secondArrowCorner1.y, to2.x, to2.y, secondArrowCorner2.x, secondArrowCorner2.y)
   })
 }
 
@@ -195,11 +209,11 @@ const updateTokenRotations = () => {
     if (shouldSkipRotation) return
     const updates = controlledObjectsOnCurrentLayer().map(object => {
       const angle = rotationTowardsCursor(object, getMousePosition())
-      if (object.document.data.rotation === angle) return null
+      if (object.document.rotation === angle) return null
       if (getSetting('fast-preview')) {
         // fast preview:  rotate image of token/tile in client, which feels very fast
         if (object instanceof Token)
-          object.icon.rotation = angle * degToRad
+          object.mesh.rotation = angle * degToRad
         else
           object.tile.rotation = angle * degToRad
         return null
@@ -222,11 +236,11 @@ const updateTokenRotations = () => {
     // Continue rotation
     const cursor = getMousePosition()
     const targetRotation = rotationTowardsCursor(object, cursor)
-    if (object.document.data.rotation === targetRotation) return
+    if (object.document.rotation === targetRotation) return
     if (getSetting('fast-preview')) {
       // fast preview:  rotate image of token/tile in client, which feels very fast
       if (object instanceof Token)
-        object.icon.rotation = targetRotation * degToRad
+        object.mesh.rotation = targetRotation * degToRad
       else
         object.tile.rotation = targetRotation * degToRad
     } else {
@@ -237,16 +251,15 @@ const updateTokenRotations = () => {
   }
 }
 
-function _onMouseMove_Override (_onMouseMove, event) {
+function onMouseMoveAR () {
   if (isNowRotating()) {
     updateTokenRotations()
   }
-  // Call wrapped function
-  return _onMouseMove.bind(this)(event)
 }
 
 function completeRotation () {
   getVisualEffectsGraphics().clear()
+  const animate = !getSetting('fast-preview')
   const updates = currentlyRotatedObjects.map(object => {
     let update = { _id: object.id }
     const angle = rotationTowardsCursor(object, getMousePosition())
@@ -256,7 +269,7 @@ function completeRotation () {
   })
   if (updates.length > 0) {
     const documentName = currentlyRotatedObjects[0].document.documentName
-    canvas.scene.updateEmbeddedDocuments(documentName, updates)
+    canvas.scene.updateEmbeddedDocuments(documentName, updates, { animate })
   }
   currentlyRotatedObjects = []
 }
@@ -267,11 +280,6 @@ const onRotateButtonDown = () => {
     return
   }
   currentlyRotatedObjects = controlled
-  if (controlled.length >= 2) {
-    drawMultiRotationVFX(getMousePosition())
-  } else if (controlled.length === 1) {
-    drawDirectionalArrow()
-  }
   updateTokenRotations()
 }
 
@@ -328,13 +336,6 @@ Hooks.once('init', function () {
 })
 
 Hooks.once('setup', function () {
-  if (!game.modules.get('lib-wrapper').active) {
-    ui.notifications.error('Alternative Rotation requires the \'libWrapper\' module. Please install and activate it.')
-    return
-  }
-
-  libWrapper.register(MODULE_ID, 'Canvas.prototype._onMouseMove', _onMouseMove_Override, 'MIXED')
-
   const { SHIFT, ALT, CONTROL } = KeyboardManager.MODIFIER_KEYS
   game.keybindings.register(MODULE_ID, 'alternative-rotation', {
     name: 'Alternative Rotation',
@@ -368,4 +369,8 @@ Hooks.once('setup', function () {
 
 Hooks.once('canvasInit', function () {
   getVisualEffectsGraphics()
+})
+
+Hooks.once('canvasReady', function () {
+  canvas.stage.on('mousemove', onMouseMoveAR)
 })
