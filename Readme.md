@@ -1,13 +1,13 @@
 # [Alternative Rotation](https://foundryvtt.com/packages/alternative-rotation/)
 
-![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/itamarcu/AlternativeRotation?style=for-the-badge) 
-![GitHub Releases](https://img.shields.io/github/downloads/itamarcu/AlternativeRotation/latest/total?style=for-the-badge) 
-![GitHub All Releases](https://img.shields.io/github/downloads/itamarcu/AlternativeRotation/total?style=for-the-badge&label=Downloads+total)  
-![Latest Supported Foundry Version](https://img.shields.io/endpoint?url=https://foundryshields.com/version?url=https://github.com/itamarcu/AlternativeRotation/raw/master/module.json)
+![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/shemetz/AlternativeRotation?style=for-the-badge) 
+![GitHub Releases](https://img.shields.io/github/downloads/shemetz/AlternativeRotation/latest/total?style=for-the-badge) 
+![GitHub All Releases](https://img.shields.io/github/downloads/shemetz/AlternativeRotation/total?style=for-the-badge&label=Downloads+total)  
+![Latest Supported Foundry Version](https://img.shields.io/endpoint?url=https://foundryshields.com/version?url=https://github.com/shemetz/AlternativeRotation/raw/master/module.json)
 
 Allows rotating tokens and tiles towards your cursor with a hotkey.
 
-To install, browse for it in the module browser, or [directly copy the manifest link for the latest release](https://github.com/itamarcu/AlternativeRotation/releases/latest/download/module.json).
+To install, browse for it in the module browser, or [directly copy the manifest link for the latest release](https://github.com/shemetz/AlternativeRotation/releases/latest/download/module.json).
 
 ![thumbnail](metadata/thumbnail.png)
 
