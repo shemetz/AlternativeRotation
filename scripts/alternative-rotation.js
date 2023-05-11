@@ -371,6 +371,6 @@ Hooks.once('canvasInit', function () {
   getVisualEffectsGraphics()
 })
 
-Hooks.once('canvasReady', function () {
+Hooks.on('canvasReady', function () {
   canvas.stage.on('mousemove', onMouseMoveAR)
 })
