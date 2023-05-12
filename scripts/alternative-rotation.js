@@ -182,8 +182,8 @@ function drawMultiRotationVFX () {
 function getCenter (object) {
   if (object instanceof Token) return object.center
   if (object instanceof Tile) return {
-    x: object.data.x + object.tile.width / 2,
-    y: object.data.y + object.tile.height / 2,
+    x: object.x + object.width / 2,
+    y: object.y + object.height / 2,
   }
   throw Error('shouldn\'t call getCenter() on other stuff')
 }
@@ -209,14 +209,11 @@ const updateTokenRotations = () => {
     if (shouldSkipRotation) return
     const updates = controlledObjectsOnCurrentLayer().map(object => {
       const angle = rotationTowardsCursor(object, getMousePosition())
-      if (object.document.rotation === angle) return null
+      if (object.document.rotation === angle) return
       if (getSetting('fast-preview')) {
         // fast preview:  rotate image of token/tile in client, which feels very fast
-        if (object instanceof Token)
-          object.mesh.rotation = angle * degToRad
-        else
-          object.tile.rotation = angle * degToRad
-        return null
+        object.mesh.rotation = angle * degToRad
+        return
       }
       let update = { _id: object.id }
       const rotation = object._updateRotation({ angle })
@@ -239,10 +236,7 @@ const updateTokenRotations = () => {
     if (object.document.rotation === targetRotation) return
     if (getSetting('fast-preview')) {
       // fast preview:  rotate image of token/tile in client, which feels very fast
-      if (object instanceof Token)
-        object.mesh.rotation = targetRotation * degToRad
-      else
-        object.tile.rotation = targetRotation * degToRad
+      object.mesh.rotation = targetRotation * degToRad
     } else {
       // not fast preview:  rotate data of token/tile.  will be sent to remote server (and other players), but lag
       timeLastRotated = performance.now()
