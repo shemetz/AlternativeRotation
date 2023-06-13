@@ -2,10 +2,10 @@
   "id": "alternative-rotation",
   "title": "Alternative Rotation",
   "description": "Rotate tokens towards your cursor with a hotkey",
-  "version": "2.2.2",
+  "version": "2.2.3",
   "compatibility": {
-    "minimum": "10",
-    "verified": "10"
+    "minimum": "11",
+    "verified": "11"
   },
   "esmodules": [
     "scripts/alternative-rotation.js"
@@ -21,7 +21,7 @@
     {
       "name": "shemetz",
       "email": "itamarcu+foundry@gmail.com",
-      "discord": "shemetz#0226",
+      "discord": "shemetz",
       "flags": {}
     }
   ],
