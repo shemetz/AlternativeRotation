@@ -26,11 +26,7 @@ function getSetting (settingName) {
 }
 
 function getMousePosition () {
- if (game.release.generation == 11) { 
-  return canvas.app.renderer.events.pointer.getLocalPosition(canvas.app.stage)
-  } else {
-  return canvas.app.renderer.plugins.interaction.mouse.getLocalPosition(canvas.app.stage)
-  }
+ return canvas.mousePosition
 }
 
 function getVisualEffectsGraphics () {
