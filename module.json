@@ -2,10 +2,10 @@
   "id": "alternative-rotation",
   "title": "Alternative Rotation",
   "description": "Rotate tokens towards your cursor with a hotkey",
-  "version": "2.2.3",
+  "version": "2.2.4",
   "compatibility": {
     "minimum": "11",
-    "verified": "11"
+    "verified": "12"
   },
   "esmodules": [
     "scripts/alternative-rotation.js"
