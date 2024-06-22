@@ -217,7 +217,7 @@ const updateTokenRotations = () => {
       }
       let update = { _id: object.id }
       const rotation = object._updateRotation({ angle })
-      mergeObject(update, { rotation })
+      foundry.utils.mergeObject(update, { rotation })
       return update
     }).filter(u => u !== null)
     if (updates.length > 0 && !getSetting('fast-preview')) {
@@ -258,7 +258,7 @@ function completeRotation () {
     let update = { _id: object.id }
     const angle = rotationTowardsCursor(object, getMousePosition())
     const rotation = object._updateRotation({ angle })
-    mergeObject(update, { rotation })
+    foundry.utils.mergeObject(update, { rotation })
     return update
   })
   if (updates.length > 0) {
