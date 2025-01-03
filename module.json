@@ -2,7 +2,7 @@
   "id": "alternative-rotation",
   "title": "Alternative Rotation",
   "description": "Rotate tokens towards your cursor with a hotkey",
-  "version": "2.2.4",
+  "version": "2.2.5",
   "compatibility": {
     "minimum": "11",
     "verified": "12"
