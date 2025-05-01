@@ -198,7 +198,8 @@ function rotationTowardsCursor (object, cursor) {
   const dBig = canvas.grid.type > CONST.GRID_TYPES.SQUARE ? 60 : 45
   const dSmall = getSetting('smooth-rotation') ? 0.1 : 5
   const snap = isSnapRotationButtonHeld() ? dBig : dSmall
-  return Math.round(degrees / snap) * snap
+  const offset = (canvas.grid.type == CONST.GRID_TYPES.HEXODDR || canvas.grid.type == CONST.GRID_TYPES.HEXEVENR) ? 30 : 0
+  return (Math.round((degrees - offset) / snap) * snap + offset) % 360
 }
 
 const updateTokenRotations = () => {
