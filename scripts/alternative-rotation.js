@@ -1,3 +1,6 @@
+const { Token, Tile } = foundry.canvas.placeables
+const { TokenLayer, TilesLayer } = foundry.canvas.layers
+
 const MODULE_ID = 'alternative-rotation'
 const TAU = Math.PI * 2
 const radToDeg = 360 / TAU
@@ -330,7 +333,7 @@ Hooks.once('init', function () {
 })
 
 Hooks.once('setup', function () {
-  const { SHIFT, ALT, CONTROL } = KeyboardManager.MODIFIER_KEYS
+  const { SHIFT, ALT, CONTROL } = foundry.helpers.interaction.KeyboardManager.MODIFIER_KEYS
   game.keybindings.register(MODULE_ID, 'alternative-rotation', {
     name: 'Alternative Rotation',
     hint: 'Hold this key while having token(s) selected to make the token(s) turn towards the cursor.' +
