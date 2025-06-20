@@ -21,8 +21,9 @@ function isNowRotatingMultiple () {
   return currentlyRotatedObjects.length > 1
 }
 
-function isSnapRotationButtonHeld () {
-  return isSnapButtonHeld
+function shouldSnap () {
+  const snapByDefault = getSetting('alt-snap-by-default')
+  return isSnapButtonHeld ? !snapByDefault : snapByDefault
 }
 
 function getSetting (settingName) {
@@ -64,7 +65,7 @@ function drawDirectionalArrow () {
   const width = 5
   const color = 0xFF9829
   const alpha = 0.8
-  const alphaMainArrow = isSnapRotationButtonHeld() ? 0.3 : 0.8
+  const alphaMainArrow = shouldSnap() ? 0.3 : 0.8
   const circleRadius = 10
   const arrowCornerLength = 30
   const arrowCornerAngle = 150 * degToRad
@@ -89,7 +90,7 @@ function drawDirectionalArrow () {
     drawPolygon(arrowStart.x, arrowStart.y, to.x, to.y).
     drawPolygon(to.x, to.y, arrowCorner1.x, arrowCorner1.y, to.x, to.y, arrowCorner2.x, arrowCorner2.y)
 
-  if (isSnapRotationButtonHeld()) {
+  if (shouldSnap()) {
     const snappedRotation = rotationTowardsCursor(object, to) * degToRad + TAU / 4
     const secondaryArrowLength = 200
     const to2 = {
@@ -120,8 +121,8 @@ function drawMultiRotationVFX () {
   const focusPoint = getMousePosition()
   const width = 4
   const color = 0xFF9829
-  const circleAlpha = isSnapRotationButtonHeld() ? 0.2 : 0.5
-  const alphaMainArrows = isSnapRotationButtonHeld() ? 0.2 : 0.8
+  const circleAlpha = shouldSnap() ? 0.2 : 0.5
+  const alphaMainArrows = shouldSnap() ? 0.2 : 0.8
   const otherArrowsAlpha = 0.8
   const circleRadius = 14
   // draw circle
@@ -221,7 +222,7 @@ function rotationTowardsCursor (object, cursor) {
       break
   }
   const dSmall = getSetting('smooth-rotation') ? 0.1 : 5
-  const snap = isSnapRotationButtonHeld() ? dBig : dSmall
+  const snap = shouldSnap() ? dBig : dSmall
   const offset = [HEXODDR, HEXEVENR].includes(canvas.grid.type) ? 30 : 0
   return (Math.round((degrees - offset) / snap) * snap + offset) % 360
 }
@@ -380,9 +381,17 @@ const onSnapButtonUp = () => {
 }
 
 Hooks.once('init', function () {
+  game.settings.register(MODULE_ID, 'alt-snap-by-default', {
+    name: 'Snap to grid directions by default',
+    hint: 'If true, rotation will snap to 45°/60° by default unless you hold the "alternative Rotation (snap)" key modifier, inverting its behavior.',
+    scope: 'client',
+    config: true,
+    default: false,
+    type: Boolean,
+  })
   game.settings.register(MODULE_ID, 'smooth-rotation', {
     name: 'Smooth rotation',
-    hint: 'Disable snapping to 5-degree increments when using the module.',
+    hint: 'If true, will reduce soft snapping from 5-degree increments to 0.1 degree increments.',
     scope: 'client',
     config: true,
     default: false,
