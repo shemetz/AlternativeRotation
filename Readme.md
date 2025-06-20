@@ -21,12 +21,12 @@ To install, browse for it in the module browser, or [directly copy the manifest 
 
 # Features
 
-This module adds a new way of rotating tiles and tokens: holding **R** (configurable hotkey) and moving your cursor around.
-The token will rotate to face the cursor (with its image "bottom"), settling when you let go of R. This is in 
+This module adds a new way of rotating tiles, tokens, or templates: holding **O** (configurable hotkey) and moving your cursor around.
+The token will rotate to face the cursor (with its image "bottom"), settling when you let go of O. This is in 
 addition to the default methods of rotation a token in Foundry - shift+scrolling while hovering over it, and shift+arrows
 when selecting it. 
 
-You can also hold R while having multiple tiles/tokens selected; this will make all
+You can also hold O while having multiple tiles/tokens selected; this will make all
 selected tiles/tokens turn to face your cursor, until you release the hotkey.  
 
 By **holding Shift** (configurable), rotation will snap to the grid directions (same directions you'd snap to when doing the default 
@@ -37,7 +37,9 @@ Rotation will assume that the bottom of the token image is its "front"; the toke
 This is the most common standard for token images.
 
 Both of the above hotkeys are **configurable** as normal - i.e. to change them you can open the "Configure Controls"
-settings window, click "Alternative Rotation", and then change the hotkeys.
+settings window, click "Alternative Rotation", and then change the hotkeys.  **Note about the R key**:  Previously this
+key was the default rotation key used, but Foundry V13 added a new default keybinding, R to toggle ruler;  for this
+reason I changed this module's default key to O.
 
 By default, *"Fast Preview"* is enabled in the settings. It makes your token rotation feel fast and responsive, but it
 will not update the token until you let go of the hotkey; this means the other players will only see the changes when you
