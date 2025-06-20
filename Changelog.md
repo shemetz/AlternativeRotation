@@ -1,3 +1,6 @@
+## 2.2.8 - 2025-06-20
+- Fixed snap on hex row grids (#24), thanks @FolkvangrForgent!
+ 
 ## 2.2.7 - 2025-06-20
 - Added exception to avoid "rotating" on Ctrl+R
  
