@@ -1,5 +1,6 @@
 const { Token, Tile } = foundry.canvas.placeables
 const { TokenLayer, TilesLayer } = foundry.canvas.layers
+const { HEXODDR, HEXEVENR, HEXODDQ, HEXEVENQ, SQUARE, GRIDLESS } = CONST.GRID_TYPES
 
 const MODULE_ID = 'alternative-rotation'
 const TAU = Math.PI * 2
@@ -200,10 +201,28 @@ function rotationTowardsCursor (object, cursor) {
   const obj = getCenter(object)
   const target = Math.atan2(cursor.y - obj.y, cursor.x - obj.x) + TAU * 3 / 4 // down = 0
   const degrees = target * radToDeg
-  const dBig = canvas.grid.type > CONST.GRID_TYPES.SQUARE ? 60 : 45
+  let dBig;
+  switch (canvas.grid.type) {
+    case HEXODDR:
+    case HEXEVENR:
+    case HEXODDQ:
+    case HEXEVENQ:
+      dBig = 60
+      break
+    case SQUARE:
+      dBig = 45
+      break
+    case GRIDLESS:
+      dBig = 15
+      break
+    default:
+      console.warn(`Alternative Rotation | unknown grid type ${canvas.grid.type}, using default value of 45`)
+      dBig = 45
+      break
+  }
   const dSmall = getSetting('smooth-rotation') ? 0.1 : 5
   const snap = isSnapRotationButtonHeld() ? dBig : dSmall
-  const offset = (canvas.grid.type == CONST.GRID_TYPES.HEXODDR || canvas.grid.type == CONST.GRID_TYPES.HEXEVENR) ? 30 : 0
+  const offset = [HEXODDR, HEXEVENR].includes(canvas.grid.type) ? 30 : 0
   return (Math.round((degrees - offset) / snap) * snap + offset) % 360
 }
 
@@ -241,7 +260,7 @@ const updateTokenRotations = () => {
     const cursor = getMousePosition()
     const targetRotation = rotationTowardsCursor(object, cursor)
     if (object.document.rotation === targetRotation) return
-    if (getSetting('fast-preview')) {
+    if (getSetting('fast-preview') && object.mesh) {
       // fast preview:  rotate image of token/tile in client, which feels very fast
       object.mesh.rotation = targetRotation * degToRad
     } else {
