@@ -1,5 +1,5 @@
-const { Token, Tile } = foundry.canvas.placeables
-const { TokenLayer, TilesLayer } = foundry.canvas.layers
+const { Token, Tile, MeasuredTemplate } = foundry.canvas.placeables
+const { TokenLayer, TilesLayer, TemplateLayer } = foundry.canvas.layers
 const { HEXODDR, HEXEVENR, HEXODDQ, HEXEVENQ, SQUARE, GRIDLESS } = CONST.GRID_TYPES
 
 const MODULE_ID = 'alternative-rotation'
@@ -43,7 +43,7 @@ function getVisualEffectsGraphics () {
 }
 
 /**
- * Can only multi-rotate tokens and tiles (could add others in the future if needed)
+ * Can only multi-rotate tokens and tiles and templates (could add others in the future if needed)
  */
 function controlledObjectsOnCurrentLayer () {
   switch (true) {
@@ -51,6 +51,8 @@ function controlledObjectsOnCurrentLayer () {
       return canvas.tiles.controlled
     case canvas.activeLayer instanceof TokenLayer:
       return canvas.tokens.controlled
+    case canvas.activeLayer instanceof TemplateLayer:
+      return canvas.templates.placeables.filter(t => t.hover)
   }
   return []
 }
@@ -134,7 +136,7 @@ function drawMultiRotationVFX () {
   //   ↓
   // ->o<-
   //   ↑
-  controlledObjectsOnCurrentLayer().forEach(object => {
+  currentlyRotatedObjects.forEach(object => {
     const objCenter = getCenter(object)
     const angle = Math.atan2(objCenter.y - focusPoint.y, objCenter.x - focusPoint.x)
     const arrowStart = {
@@ -187,10 +189,8 @@ function drawMultiRotationVFX () {
 
 function getCenter (object) {
   if (object instanceof Token) return object.center
-  if (object instanceof Tile) return {
-    x: object.x + object.width / 2,
-    y: object.y + object.height / 2,
-  }
+  if (object instanceof Tile) return object.center
+  if (object instanceof MeasuredTemplate) return object.center
   throw Error('shouldn\'t call getCenter() on other stuff')
 }
 
@@ -201,7 +201,7 @@ function rotationTowardsCursor (object, cursor) {
   const obj = getCenter(object)
   const target = Math.atan2(cursor.y - obj.y, cursor.x - obj.x) + TAU * 3 / 4 // down = 0
   const degrees = target * radToDeg
-  let dBig;
+  let dBig
   switch (canvas.grid.type) {
     case HEXODDR:
     case HEXEVENR:
@@ -226,28 +226,28 @@ function rotationTowardsCursor (object, cursor) {
   return (Math.round((degrees - offset) / snap) * snap + offset) % 360
 }
 
-const updateTokenRotations = () => {
+const updateRotationsWithMesh = () => {
   const now = performance.now()
   const shouldSkipRotation = !getSetting('fast-preview') && (now - timeLastRotated) < 1000 /
     getSetting('rotation-update-frequency')
   if (isNowRotatingMultiple()) {
     drawMultiRotationVFX(getMousePosition())
     if (shouldSkipRotation) return
-    const updates = controlledObjectsOnCurrentLayer().map(object => {
+    const updates = currentlyRotatedObjects.map(object => {
       const angle = rotationTowardsCursor(object, getMousePosition())
-      if (object.document.rotation === angle) return
       if (getSetting('fast-preview')) {
         // fast preview:  rotate image of token/tile in client, which feels very fast
         object.mesh.rotation = angle * degToRad
-        return
+        return null
       }
+      if (object.document.rotation === angle) return null
       let update = { _id: object.id }
       const rotation = object._updateRotation({ angle })
       foundry.utils.mergeObject(update, { rotation })
       return update
     }).filter(u => u !== null)
     if (updates.length > 0 && !getSetting('fast-preview')) {
-      const documentName = controlledObjectsOnCurrentLayer()[0].document.documentName
+      const documentName = currentlyRotatedObjects[0].document.documentName
       timeLastRotated = performance.now()
       canvas.scene.updateEmbeddedDocuments(documentName, updates)
     }
@@ -259,7 +259,7 @@ const updateTokenRotations = () => {
     // Continue rotation
     const cursor = getMousePosition()
     const targetRotation = rotationTowardsCursor(object, cursor)
-    if (getSetting('fast-preview') && object.mesh) {
+    if (getSetting('fast-preview')) {
       // fast preview:  rotate image of token/tile in client, which feels very fast
       object.mesh.rotation = targetRotation * degToRad
     } else {
@@ -272,25 +272,70 @@ const updateTokenRotations = () => {
   }
 }
 
+/**
+ * Right now on foundry templates cannot be controlled and only one can be hovered at a time, so we always rotate a single one.
+ */
+const updateTemplateRotation = () => {
+  const now = performance.now()
+  const shouldSkipRotation = (now - timeLastRotated) < 1000 / getSetting('rotation-update-frequency')
+  // draw arrow
+  drawDirectionalArrow()
+  if (shouldSkipRotation) return
+  const object = currentlyRotatedObjects[0]
+  // Continue rotation
+  const cursor = getMousePosition()
+  let targetRotation = rotationTowardsCursor(object, cursor)
+  // templates don't use rotation, they use direction, 90 degrees away
+  targetRotation = (targetRotation + 90) % 360
+  if (object.document.direction !== targetRotation) {
+    // rotate data of template (no preview).  will be sent to remote server (and other players), but lag
+    timeLastRotated = performance.now()
+    object.document.update({ direction: targetRotation })
+  }
+}
+
+const updatePlaceableRotations = () => {
+  if (canvas.activeLayer instanceof TemplateLayer)
+    updateTemplateRotation()
+  else
+    updateRotationsWithMesh()
+}
+
 function onMouseMoveAR () {
   if (isNowRotating()) {
-    updateTokenRotations()
+    updatePlaceableRotations()
   }
 }
 
 function completeRotation () {
   getVisualEffectsGraphics().clear()
-  const animate = !getSetting('fast-preview')
-  const updates = currentlyRotatedObjects.map(object => {
-    let update = { _id: object.id }
-    const angle = rotationTowardsCursor(object, getMousePosition())
-    const rotation = object._updateRotation({ angle })
-    foundry.utils.mergeObject(update, { rotation })
-    return update
-  })
-  if (updates.length > 0) {
-    const documentName = currentlyRotatedObjects[0].document.documentName
-    canvas.scene.updateEmbeddedDocuments(documentName, updates, { animate })
+  if (canvas.activeLayer instanceof TemplateLayer) {
+    const updates = currentlyRotatedObjects.map(object => {
+      let update = { _id: object.id }
+      const angle = rotationTowardsCursor(object, getMousePosition())
+      let targetRotation = object._updateRotation({ angle })
+      // templates don't use rotation, they use direction, 90 degrees away
+      targetRotation = (targetRotation + 90) % 360
+      foundry.utils.mergeObject(update, { direction: targetRotation })
+      return update
+    })
+    if (updates.length > 0) {
+      const documentName = currentlyRotatedObjects[0].document.documentName
+      canvas.scene.updateEmbeddedDocuments(documentName, updates)
+    }
+  } else {
+    const animate = !getSetting('fast-preview')
+    const updates = currentlyRotatedObjects.map(object => {
+      let update = { _id: object.id }
+      const angle = rotationTowardsCursor(object, getMousePosition())
+      const rotation = object._updateRotation({ angle })
+      foundry.utils.mergeObject(update, { rotation })
+      return update
+    })
+    if (updates.length > 0) {
+      const documentName = currentlyRotatedObjects[0].document.documentName
+      canvas.scene.updateEmbeddedDocuments(documentName, updates, { animate })
+    }
   }
   currentlyRotatedObjects = []
 }
@@ -307,7 +352,7 @@ const onRotateButtonDown = () => {
     return
   }
   currentlyRotatedObjects = controlled
-  updateTokenRotations()
+  updatePlaceableRotations()
 }
 
 const onRotateButtonUp = () => {
