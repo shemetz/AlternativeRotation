@@ -415,7 +415,7 @@ Hooks.once('setup', function () {
       ' Hold Shift to snap to grid directions (45°/60°).',
     editable: [
       {
-        key: 'KeyR',
+        key: 'KeyO',
       },
     ],
     reservedModifiers: [SHIFT, ALT, CONTROL],
