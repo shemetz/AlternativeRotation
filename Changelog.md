@@ -1,4 +1,7 @@
-## 2.2.6 - 2025-01-03
+## 2.2.7 - 2025-06-20
+- Added exception to avoid "rotating" on Ctrl+R
+ 
+## 2.2.6 - 2025-06-20
 - Updated to use V13 namespaces
 
 ## 2.2.5 - 2025-01-03
