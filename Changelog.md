@@ -1,3 +1,6 @@
+## 2.2.6 - 2025-01-03
+- Updated to use V13 namespaces
+
 ## 2.2.5 - 2025-01-03
 - Improved github workflow automation
 
