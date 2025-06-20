@@ -29,7 +29,7 @@ function getSetting (settingName) {
 }
 
 function getMousePosition () {
- return canvas.mousePosition
+  return canvas.mousePosition
 }
 
 function getVisualEffectsGraphics () {
@@ -78,20 +78,20 @@ function drawDirectionalArrow () {
     x: to.x + Math.cos(angle - arrowCornerAngle) * arrowCornerLength,
     y: to.y + Math.sin(angle - arrowCornerAngle) * arrowCornerLength,
   }
-  getVisualEffectsGraphics()
-    .clear()
-    .lineStyle(width, color, alpha)
-    .drawCircle(from.x, from.y, circleRadius)
-    .lineStyle(width, color, alphaMainArrow)
-    .drawPolygon(arrowStart.x, arrowStart.y, to.x, to.y)
-    .drawPolygon(to.x, to.y, arrowCorner1.x, arrowCorner1.y, to.x, to.y, arrowCorner2.x, arrowCorner2.y)
+  getVisualEffectsGraphics().
+    clear().
+    lineStyle(width, color, alpha).
+    drawCircle(from.x, from.y, circleRadius).
+    lineStyle(width, color, alphaMainArrow).
+    drawPolygon(arrowStart.x, arrowStart.y, to.x, to.y).
+    drawPolygon(to.x, to.y, arrowCorner1.x, arrowCorner1.y, to.x, to.y, arrowCorner2.x, arrowCorner2.y)
 
   if (isSnapRotationButtonHeld()) {
     const snappedRotation = rotationTowardsCursor(object, to) * degToRad + TAU / 4
     const secondaryArrowLength = 200
     const to2 = {
       x: from.x + Math.cos(snappedRotation) * secondaryArrowLength,
-      y: from.y + Math.sin(snappedRotation) * secondaryArrowLength
+      y: from.y + Math.sin(snappedRotation) * secondaryArrowLength,
     }
     const secondArrowStart = {
       x: from.x + Math.cos(snappedRotation) * (circleRadius - width / 2 - 2),
@@ -105,10 +105,11 @@ function drawDirectionalArrow () {
       x: to2.x + Math.cos(snappedRotation - arrowCornerAngle) * arrowCornerLength,
       y: to2.y + Math.sin(snappedRotation - arrowCornerAngle) * arrowCornerLength,
     }
-    getVisualEffectsGraphics()
-      .lineStyle(5, color, alpha)
-      .drawPolygon(secondArrowStart.x, secondArrowStart.y, to2.x, to2.y)
-      .drawPolygon(to2.x, to2.y, secondArrowCorner1.x, secondArrowCorner1.y, to2.x, to2.y, secondArrowCorner2.x, secondArrowCorner2.y)
+    getVisualEffectsGraphics().
+      lineStyle(5, color, alpha).
+      drawPolygon(secondArrowStart.x, secondArrowStart.y, to2.x, to2.y).
+      drawPolygon(to2.x, to2.y, secondArrowCorner1.x, secondArrowCorner1.y, to2.x, to2.y, secondArrowCorner2.x,
+        secondArrowCorner2.y)
   }
 }
 
@@ -121,10 +122,10 @@ function drawMultiRotationVFX () {
   const otherArrowsAlpha = 0.8
   const circleRadius = 14
   // draw circle
-  getVisualEffectsGraphics()
-    .clear()
-    .lineStyle(width, color, circleAlpha)
-    .drawCircle(focusPoint.x, focusPoint.y, circleRadius)
+  getVisualEffectsGraphics().
+    clear().
+    lineStyle(width, color, circleAlpha).
+    drawCircle(focusPoint.x, focusPoint.y, circleRadius)
   const arrowLength = 18
   const arrowCornerLength = 12
   const arrowCornerAngle = 30 * degToRad
@@ -151,17 +152,17 @@ function drawMultiRotationVFX () {
       x: to.x + Math.cos(angle - arrowCornerAngle) * arrowCornerLength,
       y: to.y + Math.sin(angle - arrowCornerAngle) * arrowCornerLength,
     }
-    getVisualEffectsGraphics()
-      .lineStyle(width, color, alphaMainArrows)
-      .drawPolygon(arrowStart.x, arrowStart.y, to.x, to.y)
-      .drawPolygon(to.x, to.y, arrowCorner1.x, arrowCorner1.y, to.x, to.y, arrowCorner2.x, arrowCorner2.y)
+    getVisualEffectsGraphics().
+      lineStyle(width, color, alphaMainArrows).
+      drawPolygon(arrowStart.x, arrowStart.y, to.x, to.y).
+      drawPolygon(to.x, to.y, arrowCorner1.x, arrowCorner1.y, to.x, to.y, arrowCorner2.x, arrowCorner2.y)
 
     // secondary arrows from each target
     const snappedRotation = rotationTowardsCursor(object, to) * degToRad + TAU / 4
     const secondaryArrowLength = 100
     const to2 = {
       x: objCenter.x + Math.cos(snappedRotation) * secondaryArrowLength,
-      y: objCenter.y + Math.sin(snappedRotation) * secondaryArrowLength
+      y: objCenter.y + Math.sin(snappedRotation) * secondaryArrowLength,
     }
     const secondArrowStart = {
       x: objCenter.x + Math.cos(snappedRotation) * (circleRadius - width / 2 - 2),
@@ -175,10 +176,11 @@ function drawMultiRotationVFX () {
       x: to2.x + Math.cos(snappedRotation - arrowCornerAngle + TAU / 2) * arrowCornerLength,
       y: to2.y + Math.sin(snappedRotation - arrowCornerAngle + TAU / 2) * arrowCornerLength,
     }
-    getVisualEffectsGraphics()
-      .lineStyle(5, color, otherArrowsAlpha)
-      .drawPolygon(secondArrowStart.x, secondArrowStart.y, to2.x, to2.y)
-      .drawPolygon(to2.x, to2.y, secondArrowCorner1.x, secondArrowCorner1.y, to2.x, to2.y, secondArrowCorner2.x, secondArrowCorner2.y)
+    getVisualEffectsGraphics().
+      lineStyle(5, color, otherArrowsAlpha).
+      drawPolygon(secondArrowStart.x, secondArrowStart.y, to2.x, to2.y).
+      drawPolygon(to2.x, to2.y, secondArrowCorner1.x, secondArrowCorner1.y, to2.x, to2.y, secondArrowCorner2.x,
+        secondArrowCorner2.y)
   })
 }
 
@@ -206,7 +208,8 @@ function rotationTowardsCursor (object, cursor) {
 
 const updateTokenRotations = () => {
   const now = performance.now()
-  const shouldSkipRotation = !getSetting('fast-preview') && (now - timeLastRotated) < 1000 / getSetting('rotation-update-frequency')
+  const shouldSkipRotation = !getSetting('fast-preview') && (now - timeLastRotated) < 1000 /
+    getSetting('rotation-update-frequency')
   if (isNowRotatingMultiple()) {
     drawMultiRotationVFX(getMousePosition())
     if (shouldSkipRotation) return
@@ -272,6 +275,12 @@ function completeRotation () {
 }
 
 const onRotateButtonDown = () => {
+  const { CONTROL } = foundry.helpers.interaction.KeyboardManager.MODIFIER_KEYS
+  if (game.keybindings.get(MODULE_ID, 'alternative-rotation')[0].key === 'KeyR' &&
+    game.keyboard.isModifierActive(CONTROL)) {
+    // exception for Ctrl+R -- don't even start rotating, because the browser will refresh the page, it'll look awkward
+    return
+  }
   const controlled = controlledObjectsOnCurrentLayer()
   if (controlled.length === 0) {
     return
@@ -352,10 +361,10 @@ Hooks.once('setup', function () {
     hint: 'Hold this modifier key while using Alternative Rotation to snap to grid directions (45°/60°).',
     editable: [
       {
-        key: 'ShiftLeft'
+        key: 'ShiftLeft',
       },
       {
-        key: 'ShiftRight'
+        key: 'ShiftRight',
       },
     ],
     onDown: () => { onSnapButtonDown() },
