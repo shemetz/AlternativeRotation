@@ -1,3 +1,8 @@
+## 2.3.0 - 2025-06-20
+- Added the ability to rotate templates (#21)
+- Added "Snap to grid directions by default" setting
+- Changed default key from R to O, because R is now a default keybinding (to toggle the waypoint ruler)
+ 
 ## 2.2.8 - 2025-06-20
 - Fixed snap on hex row grids (#24), thanks @FolkvangrForgent!
  
