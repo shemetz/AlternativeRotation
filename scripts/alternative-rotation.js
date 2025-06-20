@@ -259,14 +259,15 @@ const updateTokenRotations = () => {
     // Continue rotation
     const cursor = getMousePosition()
     const targetRotation = rotationTowardsCursor(object, cursor)
-    if (object.document.rotation === targetRotation) return
     if (getSetting('fast-preview') && object.mesh) {
       // fast preview:  rotate image of token/tile in client, which feels very fast
       object.mesh.rotation = targetRotation * degToRad
     } else {
-      // not fast preview:  rotate data of token/tile.  will be sent to remote server (and other players), but lag
-      timeLastRotated = performance.now()
-      object.document.update({ rotation: targetRotation })
+      if (object.document.rotation !== targetRotation) {
+        // not fast preview:  rotate data of token/tile.  will be sent to remote server (and other players), but lag
+        timeLastRotated = performance.now()
+        object.document.update({ rotation: targetRotation })
+      }
     }
   }
 }
