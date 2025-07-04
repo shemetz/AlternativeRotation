@@ -1,5 +1,5 @@
 ## 2.3.1 - 2025-07-04
-- Fixed "locked rotation" tokens from having their visual rotation changed while fast preview is on (fix #67)
+- Fixed "locked rotation" tokens from having their visual rotation changed while fast preview is on (fix #27)
 
 ## 2.3.0 - 2025-06-20
 - Added the ability to rotate templates (#21)
