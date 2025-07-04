@@ -229,47 +229,29 @@ function rotationTowardsCursor (object, cursor) {
 
 const updateRotationsWithMesh = () => {
   const now = performance.now()
-  const shouldSkipRotation = !getSetting('fast-preview') && (now - timeLastRotated) < 1000 /
-    getSetting('rotation-update-frequency')
+  const fastPreviewEnabled = getSetting('fast-preview')
+  const skippingRotationDueToHighFrequency = (now - timeLastRotated) < 1000 / getSetting('rotation-update-frequency')
+  const cursorPosition = getMousePosition()
   if (isNowRotatingMultiple()) {
-    drawMultiRotationVFX(getMousePosition())
-    if (shouldSkipRotation) return
-    const updates = currentlyRotatedObjects.map(object => {
-      const angle = rotationTowardsCursor(object, getMousePosition())
-      if (getSetting('fast-preview')) {
-        // fast preview:  rotate image of token/tile in client, which feels very fast
-        object.mesh.rotation = angle * degToRad
-        return null
-      }
-      if (object.document.rotation === angle) return null
-      let update = { _id: object.id }
-      const rotation = object._updateRotation({ angle })
-      foundry.utils.mergeObject(update, { rotation })
-      return update
-    }).filter(u => u !== null)
-    if (updates.length > 0 && !getSetting('fast-preview')) {
-      const documentName = currentlyRotatedObjects[0].document.documentName
-      timeLastRotated = performance.now()
-      canvas.scene.updateEmbeddedDocuments(documentName, updates)
-    }
+    drawMultiRotationVFX(cursorPosition)
   } else {
-    // draw arrow
     drawDirectionalArrow()
-    if (shouldSkipRotation) return
-    const object = currentlyRotatedObjects[0]
-    // Continue rotation
-    const cursor = getMousePosition()
-    const targetRotation = rotationTowardsCursor(object, cursor)
-    if (getSetting('fast-preview')) {
+  }
+  const updates = currentlyRotatedObjects.map(object => {
+    const targetRotation = rotationTowardsCursor(object, cursorPosition)
+    if (fastPreviewEnabled && !object.document.lockRotation) {
       // fast preview:  rotate image of token/tile in client, which feels very fast
       object.mesh.rotation = targetRotation * degToRad
-    } else {
-      if (object.document.rotation !== targetRotation) {
-        // not fast preview:  rotate data of token/tile.  will be sent to remote server (and other players), but lag
-        timeLastRotated = performance.now()
-        object.document.update({ rotation: targetRotation })
-      }
+      return null
     }
+    if (object.document.rotation === targetRotation) return null
+    return { _id: object.id, rotation: object._updateRotation({ angle: targetRotation }) }
+  }).filter(u => u !== null)
+  if (skippingRotationDueToHighFrequency) return
+  if (updates.length > 0 && !fastPreviewEnabled) {
+    const documentName = currentlyRotatedObjects[0].document.documentName
+    timeLastRotated = performance.now()
+    canvas.scene.updateEmbeddedDocuments(documentName, updates)
   }
 }
 
@@ -278,14 +260,14 @@ const updateRotationsWithMesh = () => {
  */
 const updateTemplateRotation = () => {
   const now = performance.now()
-  const shouldSkipRotation = (now - timeLastRotated) < 1000 / getSetting('rotation-update-frequency')
+  const skippingRotationDueToHighFrequency = (now - timeLastRotated) < 1000 / getSetting('rotation-update-frequency')
   // draw arrow
   drawDirectionalArrow()
-  if (shouldSkipRotation) return
+  if (skippingRotationDueToHighFrequency) return
   const object = currentlyRotatedObjects[0]
   // Continue rotation
-  const cursor = getMousePosition()
-  let targetRotation = rotationTowardsCursor(object, cursor)
+  const cursorPosition = getMousePosition()
+  let targetRotation = rotationTowardsCursor(object, cursorPosition)
   // templates don't use rotation, they use direction, 90 degrees away
   targetRotation = (targetRotation + 90) % 360
   if (object.document.direction !== targetRotation) {
@@ -310,33 +292,27 @@ function onMouseMoveAR () {
 
 function completeRotation () {
   getVisualEffectsGraphics().clear()
+  const cursorPosition = getMousePosition()
+  let animate = !getSetting('fast-preview')
+  let updates
   if (canvas.activeLayer instanceof TemplateLayer) {
-    const updates = currentlyRotatedObjects.map(object => {
-      let update = { _id: object.id }
-      const angle = rotationTowardsCursor(object, getMousePosition())
-      let targetRotation = object._updateRotation({ angle })
+    updates = currentlyRotatedObjects.map(object => {
+      const angle = rotationTowardsCursor(object, cursorPosition)
       // templates don't use rotation, they use direction, 90 degrees away
-      targetRotation = (targetRotation + 90) % 360
-      foundry.utils.mergeObject(update, { direction: targetRotation })
-      return update
+      const direction = object._updateRotation({ angle: angle + 90 })
+      return { _id: object.id, direction }
     })
-    if (updates.length > 0) {
-      const documentName = currentlyRotatedObjects[0].document.documentName
-      canvas.scene.updateEmbeddedDocuments(documentName, updates)
-    }
+    animate = false // templates don't animate when they rotate
   } else {
-    const animate = !getSetting('fast-preview')
-    const updates = currentlyRotatedObjects.map(object => {
-      let update = { _id: object.id }
-      const angle = rotationTowardsCursor(object, getMousePosition())
+    updates = currentlyRotatedObjects.map(object => {
+      const angle = rotationTowardsCursor(object, cursorPosition)
       const rotation = object._updateRotation({ angle })
-      foundry.utils.mergeObject(update, { rotation })
-      return update
+      return { _id: object.id, rotation }
     })
-    if (updates.length > 0) {
-      const documentName = currentlyRotatedObjects[0].document.documentName
-      canvas.scene.updateEmbeddedDocuments(documentName, updates, { animate })
-    }
+  }
+  if (updates.length > 0) {
+    const documentName = currentlyRotatedObjects[0].document.documentName
+    canvas.scene.updateEmbeddedDocuments(documentName, updates, { animate })
   }
   currentlyRotatedObjects = []
 }
