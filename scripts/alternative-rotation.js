@@ -38,7 +38,7 @@ function getVisualEffectsGraphics () {
   if (visualEffectsGraphics === null || visualEffectsGraphics._geometry === null) {
     // visualEffectsGraphics._geometry will become null if the canvas changes, e.g. when moving to new scene
     visualEffectsGraphics = canvas.controls.addChild(new PIXI.Graphics())
-    console.log(`Alternative Rotation | added PIXI graphics to canvas controls`)
+    console.log('Alternative Rotation | added PIXI graphics to canvas controls')
   }
   return visualEffectsGraphics
 }
@@ -82,13 +82,7 @@ function drawDirectionalArrow () {
     x: to.x + Math.cos(angle - arrowCornerAngle) * arrowCornerLength,
     y: to.y + Math.sin(angle - arrowCornerAngle) * arrowCornerLength,
   }
-  getVisualEffectsGraphics().
-    clear().
-    lineStyle(width, color, alpha).
-    drawCircle(from.x, from.y, circleRadius).
-    lineStyle(width, color, alphaMainArrow).
-    drawPolygon(arrowStart.x, arrowStart.y, to.x, to.y).
-    drawPolygon(to.x, to.y, arrowCorner1.x, arrowCorner1.y, to.x, to.y, arrowCorner2.x, arrowCorner2.y)
+  getVisualEffectsGraphics().clear().lineStyle(width, color, alpha).drawCircle(from.x, from.y, circleRadius).lineStyle(width, color, alphaMainArrow).drawPolygon(arrowStart.x, arrowStart.y, to.x, to.y).drawPolygon(to.x, to.y, arrowCorner1.x, arrowCorner1.y, to.x, to.y, arrowCorner2.x, arrowCorner2.y)
 
   if (shouldSnap()) {
     const snappedRotation = rotationTowardsCursor(object, to) * degToRad + TAU / 4
@@ -109,11 +103,8 @@ function drawDirectionalArrow () {
       x: to2.x + Math.cos(snappedRotation - arrowCornerAngle) * arrowCornerLength,
       y: to2.y + Math.sin(snappedRotation - arrowCornerAngle) * arrowCornerLength,
     }
-    getVisualEffectsGraphics().
-      lineStyle(5, color, alpha).
-      drawPolygon(secondArrowStart.x, secondArrowStart.y, to2.x, to2.y).
-      drawPolygon(to2.x, to2.y, secondArrowCorner1.x, secondArrowCorner1.y, to2.x, to2.y, secondArrowCorner2.x,
-        secondArrowCorner2.y)
+    getVisualEffectsGraphics().lineStyle(5, color, alpha).drawPolygon(secondArrowStart.x, secondArrowStart.y, to2.x, to2.y).drawPolygon(to2.x, to2.y, secondArrowCorner1.x, secondArrowCorner1.y, to2.x, to2.y, secondArrowCorner2.x,
+      secondArrowCorner2.y)
   }
 }
 
@@ -126,10 +117,7 @@ function drawMultiRotationVFX () {
   const otherArrowsAlpha = 0.8
   const circleRadius = 14
   // draw circle
-  getVisualEffectsGraphics().
-    clear().
-    lineStyle(width, color, circleAlpha).
-    drawCircle(focusPoint.x, focusPoint.y, circleRadius)
+  getVisualEffectsGraphics().clear().lineStyle(width, color, circleAlpha).drawCircle(focusPoint.x, focusPoint.y, circleRadius)
   const arrowLength = 18
   const arrowCornerLength = 12
   const arrowCornerAngle = 30 * degToRad
@@ -156,10 +144,7 @@ function drawMultiRotationVFX () {
       x: to.x + Math.cos(angle - arrowCornerAngle) * arrowCornerLength,
       y: to.y + Math.sin(angle - arrowCornerAngle) * arrowCornerLength,
     }
-    getVisualEffectsGraphics().
-      lineStyle(width, color, alphaMainArrows).
-      drawPolygon(arrowStart.x, arrowStart.y, to.x, to.y).
-      drawPolygon(to.x, to.y, arrowCorner1.x, arrowCorner1.y, to.x, to.y, arrowCorner2.x, arrowCorner2.y)
+    getVisualEffectsGraphics().lineStyle(width, color, alphaMainArrows).drawPolygon(arrowStart.x, arrowStart.y, to.x, to.y).drawPolygon(to.x, to.y, arrowCorner1.x, arrowCorner1.y, to.x, to.y, arrowCorner2.x, arrowCorner2.y)
 
     // secondary arrows from each target
     const snappedRotation = rotationTowardsCursor(object, to) * degToRad + TAU / 4
@@ -180,11 +165,8 @@ function drawMultiRotationVFX () {
       x: to2.x + Math.cos(snappedRotation - arrowCornerAngle + TAU / 2) * arrowCornerLength,
       y: to2.y + Math.sin(snappedRotation - arrowCornerAngle + TAU / 2) * arrowCornerLength,
     }
-    getVisualEffectsGraphics().
-      lineStyle(5, color, otherArrowsAlpha).
-      drawPolygon(secondArrowStart.x, secondArrowStart.y, to2.x, to2.y).
-      drawPolygon(to2.x, to2.y, secondArrowCorner1.x, secondArrowCorner1.y, to2.x, to2.y, secondArrowCorner2.x,
-        secondArrowCorner2.y)
+    getVisualEffectsGraphics().lineStyle(5, color, otherArrowsAlpha).drawPolygon(secondArrowStart.x, secondArrowStart.y, to2.x, to2.y).drawPolygon(to2.x, to2.y, secondArrowCorner1.x, secondArrowCorner1.y, to2.x, to2.y, secondArrowCorner2.x,
+      secondArrowCorner2.y)
   })
 }
 
@@ -358,33 +340,32 @@ const onSnapButtonUp = () => {
 
 Hooks.once('init', function () {
   game.settings.register(MODULE_ID, 'alt-snap-by-default', {
-    name: 'Snap to grid directions by default',
-    hint: 'If true, rotation will snap to 45°/60° by default unless you hold the "alternative Rotation (snap)" key modifier, inverting its behavior.',
+    name: game.i18n.localize('alternative-rotation.settings.altSnapByDefault.name'),
+    hint: game.i18n.localize('alternative-rotation.settings.altSnapByDefault.hint'),
     scope: 'client',
     config: true,
     default: false,
     type: Boolean,
   })
   game.settings.register(MODULE_ID, 'smooth-rotation', {
-    name: 'Smooth rotation',
-    hint: 'If true, will reduce soft snapping from 5-degree increments to 0.1 degree increments.',
+    name: game.i18n.localize('alternative-rotation.settings.smoothRotation.name'),
+    hint: game.i18n.localize('alternative-rotation.settings.smoothRotation.hint'),
     scope: 'client',
     config: true,
     default: false,
     type: Boolean,
   })
   game.settings.register(MODULE_ID, 'fast-preview', {
-    name: 'Fast Preview',
-    hint: 'If true, there will be no lag when rotating, but other players won\'t see the change until you let go.',
+    name: game.i18n.localize('alternative-rotation.settings.fastPreview.name'),
+    hint: game.i18n.localize('alternative-rotation.settings.fastPreview.hint'),
     scope: 'client',
     config: true,
     default: true,
     type: Boolean,
   })
   game.settings.register(MODULE_ID, 'rotation-update-frequency', {
-    name: 'Rotation update frequency',
-    hint: 'Only applies if Fast Preview is disabled.  Default 60 (times per second). Increase this for smoother' +
-      ' yet possibly laggier rotation.',
+    name: game.i18n.localize('alternative-rotation.settings.rotationUpdateFrequency.name'),
+    hint: game.i18n.localize('alternative-rotation.settings.rotationUpdateFrequency.hint'),
     scope: 'client',
     config: true,
     default: 60,
@@ -395,9 +376,8 @@ Hooks.once('init', function () {
 Hooks.once('setup', function () {
   const { SHIFT, ALT, CONTROL } = foundry.helpers.interaction.KeyboardManager.MODIFIER_KEYS
   game.keybindings.register(MODULE_ID, 'alternative-rotation', {
-    name: 'Alternative Rotation',
-    hint: 'Hold this key while having token(s) selected to make the token(s) turn towards the cursor.' +
-      ' Hold Shift to snap to grid directions (45°/60°).',
+    name: game.i18n.localize('alternative-rotation.keybindings.alternativeRotation.name'),
+    hint: game.i18n.localize('alternative-rotation.keybindings.alternativeRotation.hint'),
     editable: [
       {
         key: 'KeyO',
@@ -408,8 +388,8 @@ Hooks.once('setup', function () {
     onUp: () => { onRotateButtonUp() },
   })
   game.keybindings.register(MODULE_ID, 'alternative-rotation-snap', {
-    name: 'Alternative Rotation (snap)',
-    hint: 'Hold this modifier key while using Alternative Rotation to snap to grid directions (45°/60°).',
+    name: game.i18n.localize('alternative-rotation.keybindings.alternativeRotationSnap.name'),
+    hint: game.i18n.localize('alternative-rotation.keybindings.alternativeRotationSnap.hint'),
     editable: [
       {
         key: 'ShiftLeft',
@@ -421,7 +401,7 @@ Hooks.once('setup', function () {
     onDown: () => { onSnapButtonDown() },
     onUp: () => { { onSnapButtonUp() } },
   })
-  console.log(`Alternative Rotation | initialized`)
+  console.log('Alternative Rotation | initialized')
 })
 
 Hooks.once('canvasInit', function () {
