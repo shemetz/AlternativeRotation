@@ -1,0 +1,32 @@
+{
+  "alternative-rotation": {
+    "settings": {
+      "altSnapByDefault": {
+        "name": "Aligner sur les directions de la grille par défaut",
+        "hint": "Si cette option est vraie, la rotation s'alignera sur 45°/60° par défaut, à moins de maintenir enfoncée la touche modificatrice « Rotation alternative (aligner) » enfoncée, inversant ainsi son comportement."
+      },
+      "smoothRotation": {
+        "name": "Rotation en douceur",
+        "hint": "Si cette option est vraie, elle réduira l'alignement doux par incréments de 5 degrés à des incréments de 0,1 degré."
+      },
+      "fastPreview": {
+        "name": "Aperçu rapide",
+        "hint": "Si cette option est vraie, il n'y aura pas de décalage lors de la rotation mais les autres joueurs ne verront pas le changement avant que vous ne lâchiez."
+      },
+      "rotationUpdateFrequency": {
+        "name": "Fréquence de mise à jour de la rotation",
+        "hint": "S'applique uniquement si l'aperçu rapide est désactivé. Par défaut est de 60 (fois par seconde). Augmentez cette valeur pour une rotation plus fluide, mais potentiellement plus lente."
+      }
+    },
+    "keybindings": {
+      "alternativeRotation": {
+        "name": "Rotation alternative",
+        "hint": "Maintenez cette touche enfoncée en ayant sélectionné un/des jeton(s) pour les orienter vers le curseur. Maintenez Maj enfoncée pour les aligner sur les directions de la grille (45°/60°)."
+      },
+      "alternativeRotationSnap": {
+        "name": "Rotation alternative (aligner)",
+        "hint": "Maintenez cette touche de modification enfoncée tout en utilisant la rotation alternative pour aligner sur les directions de la grille (45°/60°)."
+      }
+    }
+  }
+}
