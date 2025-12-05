@@ -16,6 +16,10 @@
       "rotationUpdateFrequency": {
         "name": "Rotation update frequency",
         "hint": "Only applies if Fast Preview is disabled. Default 60 (times per second). Increase this for smoother yet possibly laggier rotation."
+      },
+      "disableSingleArrowVfx": {
+        "name": "Disable visual effect (hide the orange arrow)",
+        "hint": "When rotating a single thing, this setting will make it so that no arrow is shown.  This is useful if e.g. your tokens emit light in a cone, or have very obvious facing."
       }
     },
     "keybindings": {

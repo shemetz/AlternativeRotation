@@ -59,6 +59,7 @@ function controlledObjectsOnCurrentLayer () {
 }
 
 function drawDirectionalArrow () {
+  if (getSetting('disable-single-arrow-vfx')) return
   const object = currentlyRotatedObjects[0]
   const from = getCenter(object)
   const to = getMousePosition()
@@ -109,6 +110,7 @@ function drawDirectionalArrow () {
 }
 
 function drawMultiRotationVFX () {
+  if (getSetting('disable-single-arrow-vfx')) return
   const focusPoint = getMousePosition()
   const width = 4
   const color = 0xFF9829
@@ -370,6 +372,14 @@ Hooks.once('init', function () {
     config: true,
     default: 60,
     type: Number,
+  })
+  game.settings.register(MODULE_ID, 'disable-single-arrow-vfx', {
+    name: game.i18n.localize('alternative-rotation.settings.disableSingleArrowVfx.name'),
+    hint: game.i18n.localize('alternative-rotation.settings.disableSingleArrowVfx.hint'),
+    scope: 'client',
+    config: true,
+    default: false,
+    type: Boolean,
   })
 })
 
