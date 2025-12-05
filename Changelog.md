@@ -1,5 +1,6 @@
-## 2.3.2 - 2025-12-05
-- Add a new setting, "Disable visual effect (hide the orange arrow)" (requested on discord by @arroisdoce)
+## 2.3.3 - 2025-12-05
+- Added a new setting, "Disable visual effect (hide the orange arrow)" (requested on discord by @arroisdoce)
+- Added French localization
 
 ## 2.3.1 - 2025-07-04
 - Fixed "locked rotation" tokens from having their visual rotation changed while fast preview is on (fix #27)
